@@ -352,6 +352,13 @@ export default function App() {
     if(!data[newM]) setData(d=>({...d,[newM]:JSON.parse(JSON.stringify(EMPTY))}));
     setEditMonth(newM); setShowAdd(false);
   }
+  function deleteMonth(m) {
+    if(!window.confirm(`Xoá tháng ${ML[m]}? Toàn bộ dữ liệu tháng này sẽ mất!`)) return;
+    setData(d=>{ const nd={...d}; delete nd[m]; return nd; });
+    setUrls(d=>{ const nd={...d}; delete nd[m]; return nd; });
+    setOtherNotes(d=>{ const nd={...d}; delete nd[m]; return nd; });
+    if(editMonth===m) setEditMonth(dataMonths.find(x=>x!==m)||"2026-05");
+  }
   function saveAll() {
     const vals={};
     FIELDS[editPlat].forEach(f=>{ const el=formRefs.current[f.key]; vals[f.key]=el?(parseInt(el.value)||0):0; });
@@ -589,10 +596,13 @@ export default function App() {
               const cnt=PLATFORMS.filter(p=>data[m]?.[p]&&Object.values(data[m][p]).some(v=>v>0)).length;
               const act=m===editMonth;
               return (
-                <button key={m} onClick={()=>{setEditMonth(m);formRefs.current={};}} style={{padding:"10px 6px",borderRadius:10,cursor:"pointer",textAlign:"center",fontFamily:"inherit",border:`1.5px solid ${act?C.purple:C.border}`,background:act?C.purpleLight:C.bg,transition:"all .15s"}}>
-                  <div style={{fontSize:isMobile?11:13,fontWeight:700,color:act?C.purple:C.textSub}}>{ML[m]}</div>
-                  <div style={{fontSize:9,color:cnt===7?"#2e7d32":cnt>0?"#e65100":C.textMuted,marginTop:2,fontWeight:600}}>{cnt}/7</div>
-                </button>
+                <div key={m} style={{position:"relative"}}>
+                  <button onClick={()=>{setEditMonth(m);formRefs.current={};}} style={{width:"100%",padding:"10px 6px",borderRadius:10,cursor:"pointer",textAlign:"center",fontFamily:"inherit",border:`1.5px solid ${act?C.purple:C.border}`,background:act?C.purpleLight:C.bg,transition:"all .15s"}}>
+                    <div style={{fontSize:isMobile?11:13,fontWeight:700,color:act?C.purple:C.textSub}}>{ML[m]}</div>
+                    <div style={{fontSize:9,color:cnt===7?"#2e7d32":cnt>0?"#e65100":C.textMuted,marginTop:2,fontWeight:600}}>{cnt}/7</div>
+                  </button>
+                  <button onClick={()=>deleteMonth(m)} title="Xoá tháng này" style={{position:"absolute",top:-6,right:-6,width:18,height:18,borderRadius:"50%",border:"none",background:"#e53935",color:"#fff",fontSize:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,lineHeight:1}}>×</button>
+                </div>
               );
             })}
           </div>
