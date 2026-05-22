@@ -375,7 +375,7 @@ export default function App() {
   const inp = {background:C.offWhite,border:`1.5px solid ${C.silver}`,borderRadius:10,padding:"10px 14px",color:C.textMain,fontSize:15,width:"100%",outline:"none",transition:"border .15s",fontFamily:"inherit"};
   const lbl = {fontSize:11,color:C.textSub,fontWeight:700,marginBottom:5,display:"block",textTransform:"uppercase",letterSpacing:.5};
   const Btn = ({children,variant="primary",onClick,style={}}) => (
-    <button onClick={onClick} style={{padding:isMobile?"9px 16px":"10px 22px",borderRadius:10,border:"none",cursor:"pointer",fontWeight:700,fontSize:isMobile?12:13,fontFamily:"inherit",background:variant==="primary"?`linear-gradient(135deg,${C.purple},${C.purpleMid})`:variant==="success"?"linear-gradient(135deg,#2e7d32,#43a047)":variant==="ghost"?"transparent":C.offWhite,color:variant==="ghost"?C.textSub:C.white,border:variant==="ghost"?`1px solid ${C.silver}`:"none",...style}}>{children}</button>
+    <button onClick={onClick} style={{padding:isMobile?"9px 16px":"10px 22px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:isMobile?12:13,fontFamily:"inherit",background:variant==="primary"?`linear-gradient(135deg,${C.purple},${C.purpleMid})`:variant==="success"?"linear-gradient(135deg,#2e7d32,#43a047)":variant==="ghost"?"transparent":C.offWhite,color:variant==="ghost"?C.textSub:C.white,border:variant==="ghost"?`1px solid ${C.silver}`:"none",...style}}>{children}</button>
   );
 
   // ── Platform Card ──
