@@ -361,7 +361,7 @@ export default function App() {
   }
   function saveAll() {
     const vals={};
-    FIELDS[editPlat].forEach(f=>{ const el=formRefs.current[f.key]; vals[f.key]=el?(parseInt(el.value)||0):0; });
+    FIELDS[editPlat].forEach(f=>{ const el=formRefs.current[f.key]; vals[f.key]=el?(f.key==="rating"?parseFloat(el.value)||0:parseInt(el.value)||0):0; });
     setData(d=>({...d,[editMonth]:{...(d[editMonth]||JSON.parse(JSON.stringify(EMPTY))),[editPlat]:vals}}));
     setSavedMsg(`✓ Lưu ${PM[editPlat].label} — ${ML[editMonth]}`);
     setTimeout(()=>setSavedMsg(""),2500);
@@ -513,6 +513,7 @@ export default function App() {
               <div key={f.key}>
                 <label style={lbl}>{f.icon} {f.label}</label>
                 <input style={inp} type="number" min={0}
+                  step={f.key==="rating"?"0.1":"1"}
                   defaultValue={existing[f.key]??0}
                   ref={el=>{formRefs.current[f.key]=el;}}
                   onFocus={e=>e.target.select()}
