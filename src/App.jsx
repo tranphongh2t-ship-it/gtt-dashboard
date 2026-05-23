@@ -449,11 +449,11 @@ export default function App() {
               <div style={{fontSize:10,color:C.purpleMid,fontWeight:800,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>🔗 Bài đăng tháng này ({platUrls.length})</div>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {platUrls.map(u=>(
-                  <a key={u.id} href={u.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:10,padding:isMobile?"8px 10px":"10px 12px",background:C.bg,borderRadius:10,border:`1px solid ${C.border}`,textDecoration:"none",transition:"border-color .15s"}}>
-                    <span style={{fontSize:isMobile?10:11,fontWeight:700,color:C.white,background:TYPE_COLOR[u.type]||C.purple,padding:"2px 8px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{TYPE_LABEL[u.type]||u.type}</span>
-                    <span style={{fontSize:isMobile?12:13,fontWeight:600,color:C.textMain,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.title||u.url}</span>
+                  <div key={u.id} style={{display:"flex",alignItems:"center",gap:8,padding:isMobile?"8px 10px":"10px 12px",background:C.bg,borderRadius:10,border:`1px solid ${C.border}`,overflow:"hidden"}}>
+                    <span style={{fontSize:isMobile?10:11,fontWeight:700,color:C.white,background:TYPE_COLOR[u.type]||C.purple,padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{TYPE_LABEL[u.type]||u.type}</span>
+                    <a href={u.url} target="_blank" rel="noopener noreferrer" style={{fontSize:isMobile?11:13,fontWeight:600,color:C.textMain,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",textDecoration:"none"}}>{u.title||u.url}</a>
                     <span style={{fontSize:10,color:C.textMuted,whiteSpace:"nowrap",flexShrink:0}}>{u.date}</span>
-                  </a>
+                  </div>
                 ))}
               </div>
             </div>
@@ -538,14 +538,24 @@ export default function App() {
             <div>
               {/* Add form */}
               <div style={{background:C.goldLight,borderRadius:12,padding:isMobile?12:16,border:`1px solid ${C.gold}`,marginBottom:16}}>
-                <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"1fr 1fr 120px 120px",gap:10,marginBottom:10}}>
-                  <div style={{gridColumn:isMobile?"1/-1":"auto"}}>
+                <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr 140px 120px",gap:10,marginBottom:10}}>
+                  <div>
                     <label style={lbl}>📝 Tiêu đề bài</label>
-                    <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="Tên bài viết / video..." value={urlForm.title} onChange={e=>setUrlForm(f=>({...f,title:e.target.value}))}/>
+                    <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="Tên bài viết / video..."
+                      defaultValue={urlForm.title}
+                      ref={el=>{ if(el) el._field="title"; }}
+                      onChange={e=>{ urlForm.title=e.target.value; }}
+                      onBlur={e=>setUrlForm(f=>({...f,title:e.target.value}))}
+                    />
                   </div>
-                  <div style={{gridColumn:isMobile?"1/-1":"auto"}}>
+                  <div>
                     <label style={lbl}>🔗 URL</label>
-                    <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="https://..." value={urlForm.url} onChange={e=>setUrlForm(f=>({...f,url:e.target.value}))} onKeyDown={e=>{if(e.key==="Enter")addUrl();}}/>
+                    <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="https://..."
+                      defaultValue={urlForm.url}
+                      onChange={e=>{ urlForm.url=e.target.value; }}
+                      onBlur={e=>setUrlForm(f=>({...f,url:e.target.value}))}
+                      onKeyDown={e=>{if(e.key==="Enter")addUrl();}}
+                    />
                   </div>
                   <div>
                     <label style={lbl}>📅 Ngày đăng</label>
@@ -574,12 +584,12 @@ export default function App() {
                 return (
                   <div style={{display:"flex",flexDirection:"column",gap:8}}>
                     {platUrls.map((u,i)=>(
-                      <div key={u.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:i%2===0?C.bg:C.white,borderRadius:10,border:`1px solid ${C.border}`}}>
-                        <span style={{fontSize:10,fontWeight:700,color:C.white,background:TYPE_COLOR[u.type]||C.purple,padding:"2px 8px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{TYPE_LABEL[u.type]||u.type}</span>
-                        <span style={{fontSize:13,fontWeight:600,color:C.textMain,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.title||"—"}</span>
-                        <a href={u.url} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:C.purpleMid,textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,border:`1px solid ${C.purpleMid}`,borderRadius:6,padding:"2px 8px",fontWeight:600}}>🔗 Xem</a>
-                        <span style={{fontSize:10,color:C.textMuted,whiteSpace:"nowrap",flexShrink:0}}>{u.date}</span>
-                        <button onClick={()=>removeUrl(u.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:"#c62828",fontSize:16,padding:"0 4px",flexShrink:0,lineHeight:1}}>×</button>
+                      <div key={u.id} style={{display:"flex",alignItems:"center",gap:8,padding:isMobile?"8px 10px":"10px 12px",background:i%2===0?C.bg:C.white,borderRadius:10,border:`1px solid ${C.border}`,overflow:"hidden"}}>
+                        <span style={{fontSize:isMobile?9:10,fontWeight:700,color:C.white,background:TYPE_COLOR[u.type]||C.purple,padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{TYPE_LABEL[u.type]||u.type}</span>
+                        <span style={{fontSize:isMobile?11:13,fontWeight:600,color:C.textMain,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.title||"—"}</span>
+                        <a href={u.url} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:C.purpleMid,textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,border:`1px solid ${C.purpleMid}`,borderRadius:6,padding:"2px 7px",fontWeight:600}}>🔗</a>
+                        <span style={{fontSize:10,color:C.textMuted,whiteSpace:"nowrap",flexShrink:0,display:isMobile?"none":"inline"}}>{u.date}</span>
+                        <button onClick={()=>removeUrl(u.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:"#c62828",fontSize:18,padding:"0 2px",flexShrink:0,lineHeight:1}}>×</button>
                       </div>
                     ))}
                   </div>
@@ -869,7 +879,12 @@ export default function App() {
             <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"2fr 1fr 1fr",gap:10,marginBottom:10}}>
               <div style={{gridColumn:isMobile?"1/-1":"auto"}}>
                 <label style={lbl}>📝 Tên công việc *</label>
-                <input style={{...inp,padding:"9px 12px",fontSize:13}} placeholder="Tên công việc..." value={noteForm.title} onChange={e=>setNoteForm(f=>({...f,title:e.target.value}))} onKeyDown={e=>{if(e.key==="Enter")addNote();}}/>
+                <input style={{...inp,padding:"9px 12px",fontSize:13}} placeholder="Tên công việc..."
+                  defaultValue={noteForm.title}
+                  onChange={e=>{ noteForm.title=e.target.value; }}
+                  onBlur={e=>setNoteForm(f=>({...f,title:e.target.value}))}
+                  onKeyDown={e=>{if(e.key==="Enter")addNote();}}
+                />
               </div>
               <div>
                 <label style={lbl}>🏷 Danh mục</label>
@@ -884,7 +899,11 @@ export default function App() {
             </div>
             <div style={{marginBottom:12}}>
               <label style={lbl}>📄 Ghi chú thêm</label>
-              <textarea style={{...inp,padding:"9px 12px",fontSize:13,minHeight:72,resize:"vertical"}} placeholder="Chi tiết công việc, kết quả, ghi chú..." value={noteForm.content} onChange={e=>setNoteForm(f=>({...f,content:e.target.value}))}/>
+              <textarea style={{...inp,padding:"9px 12px",fontSize:13,minHeight:72,resize:"vertical"}} placeholder="Chi tiết công việc, kết quả, ghi chú..."
+                defaultValue={noteForm.content}
+                onChange={e=>{ noteForm.content=e.target.value; }}
+                onBlur={e=>setNoteForm(f=>({...f,content:e.target.value}))}
+              />
             </div>
             <Btn variant="primary" onClick={addNote}>+ Thêm công việc</Btn>
           </Card>
@@ -913,15 +932,15 @@ export default function App() {
                   <button onClick={()=>toggleNote(noteMonth,n.id)} style={{width:22,height:22,borderRadius:6,border:`2px solid ${n.done?"#2e7d32":C.purpleMid}`,background:n.done?"#2e7d32":"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,marginTop:1}}>
                     {n.done?"✓":""}
                   </button>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginBottom:n.content?6:0}}>
-                      <span style={{fontSize:isMobile?13:14,fontWeight:700,color:n.done?C.textMuted:C.textMain,textDecoration:n.done?"line-through":"none"}}>{n.title}</span>
-                      <span style={{fontSize:10,fontWeight:700,color:C.white,background:cat.color,padding:"2px 8px",borderRadius:20,flexShrink:0}}>{cat.icon} {cat.label}</span>
+                  <div style={{flex:1,minWidth:0,overflow:"hidden"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:n.content?6:0}}>
+                      <span style={{fontSize:isMobile?12:14,fontWeight:700,color:n.done?C.textMuted:C.textMain,textDecoration:n.done?"line-through":"none"}}>{n.title}</span>
+                      <span style={{fontSize:10,fontWeight:700,color:C.white,background:cat.color,padding:"2px 7px",borderRadius:20,flexShrink:0}}>{cat.icon} {cat.label}</span>
                       <span style={{fontSize:10,color:C.textMuted,flexShrink:0}}>{n.date}</span>
                     </div>
-                    {n.content&&<div style={{fontSize:isMobile?12:13,color:C.textSub,lineHeight:1.5,marginTop:4}}>{n.content}</div>}
+                    {n.content&&<div style={{fontSize:isMobile?11:13,color:C.textSub,lineHeight:1.5,marginTop:4,wordBreak:"break-word"}}>{n.content}</div>}
                   </div>
-                  {isAdmin&&<button onClick={()=>removeNote(noteMonth,n.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:C.textMuted,fontSize:18,padding:"0 4px",flexShrink:0,lineHeight:1}}>×</button>}
+                  {isAdmin&&<button onClick={()=>removeNote(noteMonth,n.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:C.textMuted,fontSize:18,padding:"0 2px",flexShrink:0,lineHeight:1}}>×</button>}
                 </div>
               </div>
             );
@@ -939,7 +958,7 @@ export default function App() {
     {label:"YouTube Views", val:cur.youtube?.views,      icon:"▶️", c1:"#b71c1c",c2:"#e53935"},
     {label:"FB Reach",      val:cur.fanpage?.reach,      icon:"📘",c1:"#1565c0",c2:"#1e88e5"},
     {label:"Maps Views",    val:cur.ggmaps?.views,       icon:"📍",c1:"#1b5e20",c2:"#34a853"},
-    {label:"Chuyển đổi",    val:(cur.website?.hotline||0)+(cur.website?.form||0)+(cur.website?.zalo||0),icon:"🎯",c1:"#4a148c",c2:"#7b1fa2"},
+    {label:"Web Chuyển đổi",val:(cur.website?.hotline||0)+(cur.website?.form||0)+(cur.website?.zalo||0),icon:"🎯",c1:"#4a148c",c2:"#7b1fa2"},
   ];
 
   // ── RENDER ──
