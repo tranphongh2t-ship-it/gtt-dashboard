@@ -929,8 +929,8 @@ export default function App() {
             return (
               <div key={n.id} style={{background:n.done?C.offWhite:C.cardBg,borderRadius:14,border:`1px solid ${n.done?C.silver:C.border}`,padding:isMobile?"12px 14px":"14px 18px",boxShadow:n.done?"none":"0 2px 8px #40123e08",opacity:n.done?.75:1,transition:"all .2s"}}>
                 <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
-                  {/* Checkbox */}
-                  <button onClick={()=>toggleNote(noteMonth,n.id)} style={{width:22,height:22,borderRadius:6,border:`2px solid ${n.done?"#2e7d32":C.purpleMid}`,background:n.done?"#2e7d32":"transparent",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,marginTop:1}}>
+                  {/* Checkbox — admin only */}
+                  <button onClick={()=>isAdmin&&toggleNote(noteMonth,n.id)} style={{width:22,height:22,borderRadius:6,border:`2px solid ${n.done?"#2e7d32":C.purpleMid}`,background:n.done?"#2e7d32":"transparent",cursor:isAdmin?"pointer":"default",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,marginTop:1,opacity:isAdmin?1:0.7}}>
                     {n.done?"✓":""}
                   </button>
                   <div style={{flex:1,minWidth:0,overflow:"hidden"}}>
@@ -939,7 +939,13 @@ export default function App() {
                       <span style={{fontSize:10,fontWeight:700,color:C.white,background:cat.color,padding:"2px 7px",borderRadius:20,flexShrink:0}}>{cat.icon} {cat.label}</span>
                       <span style={{fontSize:10,color:C.textMuted,flexShrink:0}}>{n.date}</span>
                     </div>
-                    {n.content&&<div style={{fontSize:isMobile?11:13,color:C.textSub,lineHeight:1.5,marginTop:4,wordBreak:"break-word"}}>{n.content}</div>}
+                    {n.content&&<div style={{fontSize:isMobile?11:13,color:C.textSub,lineHeight:1.5,marginTop:4,wordBreak:"break-word"}}>
+                      {n.content.split(/(\s+)/).map((word,i)=>
+                        /^https?:\/\/\S+/.test(word)
+                          ? <a key={i} href={word} target="_blank" rel="noopener noreferrer" style={{color:C.purpleMid,textDecoration:"underline",wordBreak:"break-all"}}>{word}</a>
+                          : <span key={i}>{word}</span>
+                      )}
+                    </div>}
                   </div>
                   {isAdmin&&<button onClick={()=>removeNote(noteMonth,n.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:C.textMuted,fontSize:18,padding:"0 2px",flexShrink:0,lineHeight:1}}>×</button>}
                 </div>
