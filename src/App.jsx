@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import ContentPlan from "./ContentPlan";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -192,8 +193,8 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const TABS = isAdmin
-    ? [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"input",label:"Nhập liệu",icon:"✎"}]
-    : [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"}];
+    ? [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"content",label:"Plan Content",icon:"✍️"},{id:"input",label:"Nhập liệu",icon:"✎"}]
+    : [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"content",label:"Plan Content",icon:"✍️"}];
 
   const [tab, setTab] = useState("dashboard");
   const [selMonth, setSelMonth] = useState("2026-05");
@@ -1050,6 +1051,7 @@ export default function App() {
         {tab==="other"   && <OtherTab />}
         {tab==="compare" && <CompareTab />}
         {tab==="input"   && <InputTab />}
+        {tab==="content" && <ContentPlan isAdmin={isAdmin} apiGet={apiGet} apiSet={apiSet} isMobile={isMobile}/>}
       </div>
 
       {/* ── MOBILE BOTTOM NAV ── */}
