@@ -226,6 +226,9 @@ export default function App() {
   const [noteForm, setNoteForm] = useState({title:"",category:"design",content:"",date:""});
   const [noteMonth, setNoteMonth] = useState("2026-05");
   const [noteFilter, setNoteFilter] = useState("all");
+  const [noteDateFilter, setNoteDateFilter] = useState("all"); // all | today | thisweek | custom
+  const [noteDateFrom, setNoteDateFrom] = useState("");
+  const [noteDateTo, setNoteDateTo] = useState("");
 
   const NOTE_CATS = [
     {id:"design",   label:"Thiết kế",    icon:"🎨", color:"#9d5799"},
@@ -826,7 +829,22 @@ export default function App() {
   // ── Other Tasks Tab ──
   function OtherTab() {
     const monthNotes = otherNotes[noteMonth] || [];
-    const filtered = noteFilter==="all" ? monthNotes : noteFilter==="done" ? monthNotes.filter(n=>n.done) : noteFilter==="todo" ? monthNotes.filter(n=>!n.done) : monthNotes.filter(n=>n.category===noteFilter);
+    const today = new Date().toISOString().slice(0,10);
+    const weekStart = new Date(Date.now() - 6*24*60*60*1000).toISOString().slice(0,10);
+    const filtered = monthNotes.filter(n => {
+      // status filter
+      if (noteFilter==="done" && !n.done) return false;
+      if (noteFilter==="todo" && n.done) return false;
+      if (noteFilter!=="all"&&noteFilter!=="done"&&noteFilter!=="todo" && n.category!==noteFilter) return false;
+      // date filter
+      if (noteDateFilter==="today" && n.date !== today) return false;
+      if (noteDateFilter==="thisweek" && n.date < weekStart) return false;
+      if (noteDateFilter==="custom") {
+        if (noteDateFrom && n.date < noteDateFrom) return false;
+        if (noteDateTo && n.date > noteDateTo) return false;
+      }
+      return true;
+    });
     const doneCnt = monthNotes.filter(n=>n.done).length;
     const pctDone = monthNotes.length ? Math.round(doneCnt/monthNotes.length*100) : 0;
 
@@ -920,6 +938,25 @@ export default function App() {
                 {f.icon} {f.label} {f.id==="all"?`(${monthNotes.length})`:f.id==="done"?`(${doneCnt})`:f.id==="todo"?`(${monthNotes.length-doneCnt})`:""}
               </button>
             );})}
+          </div>
+          {/* Date filter bar */}
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",marginTop:10,paddingTop:10,borderTop:`1px solid ${C.border}`}}>
+            <span style={{fontSize:11,color:C.textMuted,fontWeight:700,flexShrink:0}}>📅 Lọc ngày:</span>
+            {[{id:"all",label:"Tất cả"},{id:"today",label:"Hôm nay"},{id:"thisweek",label:"7 ngày qua"}].map(f=>{
+              const act=noteDateFilter===f.id;
+              return <button key={f.id} onClick={()=>{setNoteDateFilter(f.id);setNoteDateFrom("");setNoteDateTo("");}} style={{padding:"5px 12px",borderRadius:20,border:`1px solid ${act?C.gold:"#dbdbdb"}`,cursor:"pointer",fontFamily:"inherit",fontWeight:700,fontSize:11,background:act?C.goldLight:"transparent",color:act?"#b07e00":C.textSub,whiteSpace:"nowrap",flexShrink:0}}>{f.label}</button>;
+            })}
+            <button onClick={()=>setNoteDateFilter("custom")} style={{padding:"5px 12px",borderRadius:20,border:`1px solid ${noteDateFilter==="custom"?C.gold:"#dbdbdb"}`,cursor:"pointer",fontFamily:"inherit",fontWeight:700,fontSize:11,background:noteDateFilter==="custom"?C.goldLight:"transparent",color:noteDateFilter==="custom"?"#b07e00":C.textSub,whiteSpace:"nowrap",flexShrink:0}}>📆 Tùy chọn</button>
+            {noteDateFilter==="custom"&&(
+              <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                <input type="date" value={noteDateFrom} onChange={e=>setNoteDateFrom(e.target.value)} style={{border:`1px solid ${C.border}`,borderRadius:8,padding:"4px 8px",fontSize:12,outline:"none",background:C.offWhite,color:C.textMain,fontFamily:"inherit"}}/>
+                <span style={{fontSize:11,color:C.textMuted}}>→</span>
+                <input type="date" value={noteDateTo} onChange={e=>setNoteDateTo(e.target.value)} style={{border:`1px solid ${C.border}`,borderRadius:8,padding:"4px 8px",fontSize:12,outline:"none",background:C.offWhite,color:C.textMain,fontFamily:"inherit"}}/>
+                {(noteDateFrom||noteDateTo)&&<button onClick={()=>{setNoteDateFrom("");setNoteDateTo("");}} style={{padding:"4px 10px",borderRadius:8,border:`1px solid ${C.silver}`,background:"transparent",color:C.textMuted,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>✕ Xoá</button>}
+              </div>
+            )}
+            {filtered.length!==monthNotes.length&&<span style={{fontSize:11,color:C.purpleMid,fontWeight:700,marginLeft:4}}>{filtered.length}/{monthNotes.length} công việc</span>}
+          </div>
           </div>
         )}
 
