@@ -990,7 +990,7 @@ export default function App() {
                       <span style={{fontSize:10,fontWeight:700,color:C.white,background:cat.color,padding:"2px 7px",borderRadius:20,flexShrink:0}}>{cat.icon} {cat.label}</span>
                       <span style={{fontSize:10,color:C.textMuted,flexShrink:0}}>{n.date}</span>
                     </div>
-                    {n.content&&<div style={{fontSize:isMobile?11:13,color:C.textSub,lineHeight:1.5,marginTop:4,wordBreak:"break-word"}}>
+                    {n.content&&<div style={{fontSize:isMobile?11:13,color:C.textSub,lineHeight:1.5,marginTop:4,wordBreak:"break-word",whiteSpace:"pre-wrap"}}>
                       {n.content.split(/(\s+)/).map((word,i)=>
                         /^https?:\/\/\S+/.test(word)
                           ? <a key={i} href={word} target="_blank" rel="noopener noreferrer" style={{color:C.purpleMid,textDecoration:"underline",wordBreak:"break-all"}}>{word}</a>
