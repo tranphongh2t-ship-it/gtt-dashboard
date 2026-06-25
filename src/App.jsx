@@ -1,6 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { supabase } from "./supabase";
+import { C } from "./colors";
+import Auth from "./Auth";
+import WorkspaceSelect from "./WorkspaceSelect";
+import SuperAdminDashboard from "./SuperAdminDashboard";
 import ContentPlan from "./ContentPlan";
 import CauTruc from "./CauTruc";
+import KeyRank from "./KeyRank";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -29,17 +35,7 @@ const GLOBAL_CSS = `
 `;
 
 // ─── BRAND ───────────────────────────────────────────────────────────────────
-const C = {
-  purple:"#40123e", purpleMid:"#9d5799", purpleLight:"#f0dbef",
-  gold:"#eec277", goldLight:"#faefdc",
-  gray:"#b6b1b7", grayDark:"#69626a",
-  white:"#ffffff", offWhite:"#efefef", silver:"#dbdbdb",
-  purpleSoft:"#40123e22", goldSoft:"#eec27722",
-  bg:"#faf8fa", cardBg:"#ffffff", border:"#e8e0e8",
-  textMain:"#2a1229", textSub:"#69626a", textMuted:"#b6b1b7",
-};
 
-const ADMIN_PASSWORD = "190891";
 
 // Current month auto-detect
 function getCurrentMonth() {
@@ -109,24 +105,7 @@ const FIELDS = {
   ggmaps:  [{key:"views",label:"Lượt xem",icon:"👁"},{key:"searches",label:"Tìm kiếm",icon:"🔍"},{key:"clicks",label:"Clicks",icon:"🖱"},{key:"calls",label:"Gọi điện",icon:"📞"},{key:"directions",label:"Chỉ đường",icon:"🗺️"},{key:"reviews",label:"Đánh giá",icon:"⭐"},{key:"rating",label:"Điểm TB",icon:"🌟"}],
 };
 
-const API = "/api/store";  // Cloudflare Pages Function
-
-async function apiGet(key) {
-  try {
-    const r = await fetch(`${API}?key=${key}`);
-    const text = await r.text();
-    return text ? JSON.parse(text) : null;
-  } catch { return null; }
-}
-async function apiSet(key, value) {
-  try {
-    await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, value }),
-    });
-  } catch {}
-}
+// API functions moved inside App component (see below)
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 function fmt(n) {
@@ -167,42 +146,108 @@ export default function App() {
 
   const isMobile = useIsMobile();
 
+  // ── Auth & Workspace state ──
+  const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState("viewer");
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [workspace, setWorkspace] = useState(null);
+  const [wsRole, setWsRole] = useState("viewer");
+  const [showAuth, setShowAuth] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const isAdmin = wsRole === "admin";
+  const isMember = wsRole === "member" || wsRole === "admin";
+  const holdTimer = useRef(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) loadUserRole(session.user);
+      else setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) loadUserRole(session.user);
+      else { setUser(null); setUserRole("viewer"); setWorkspace(null); setAuthLoading(false); }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function loadUserRole(u) {
+    setUser(u);
+    try {
+      const { data } = await supabase.from("profiles").select("role,is_super_admin").eq("id", u.id).single();
+      setUserRole(data?.role || "member");
+      setIsSuperAdmin(data?.is_super_admin || false);
+    } catch { setUserRole("member"); }
+    setAuthLoading(false);
+  }
+
+  function selectWorkspace(ws, role="member") {
+    setWorkspace(ws);
+    setWsRole(role);
+    setSelMonth(CURRENT_MONTH);
+    setEditMonth(CURRENT_MONTH);
+    setNoteMonth(CURRENT_MONTH);
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUser(null); setUserRole("viewer"); setWorkspace(null); setShowAuth(false);
+  }
+
+  // ── Data API using Supabase workspace_data table ──
+  async function apiGet(key, wsId) {
+    const workspaceId = wsId || workspace?.id;
+    if (!workspaceId) return null;
+    try {
+      const { data } = await supabase.from("workspace_data")
+        .select("value").eq("workspace_id", workspaceId).eq("key", key).single();
+      return data?.value ? JSON.parse(data.value) : null;
+    } catch { return null; }
+  }
+  async function apiSet(key, value, wsId) {
+    const workspaceId = wsId || workspace?.id;
+    if (!workspaceId) return;
+    try {
+      await supabase.from("workspace_data").upsert({
+        workspace_id: workspaceId, key, value: JSON.stringify(value),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "workspace_id,key" });
+    } catch(e) { console.error("apiSet error:", e); }
+  }
+
   const [data, setData] = useState(INITIAL_DATA);
   const [saveStatus, setSaveStatus] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!workspace?.id) return;
     async function load() {
+      setLoading(true);
       const [d, u, n] = await Promise.all([
-        apiGet("data"), apiGet("urls"), apiGet("notes")
+        apiGet("data", workspace.id), apiGet("urls", workspace.id), apiGet("notes", workspace.id)
       ]);
-      if (d && Object.keys(d).length) setData(d);
-      if (u && Object.keys(u).length) setUrls(u);
-      if (n && Object.keys(n).length) setOtherNotes(n);
+      setData(d && Object.keys(d).length ? d : INITIAL_DATA);
+      setUrls(u && Object.keys(u).length ? u : {});
+      setOtherNotes(n && Object.keys(n).length ? n : {});
       setLoading(false);
     }
     load();
-  }, []);
+  }, [workspace?.id]);
 
   const dataReady = useRef(false);
   useEffect(() => {
     if (!dataReady.current) { dataReady.current = true; return; }
+    if (!workspace?.id) return;
     setSaveStatus("saving");
-    apiSet("data", data).then(() => {
+    apiSet("data", data, workspace.id).then(() => {
       setSaveStatus("saved");
       setTimeout(() => setSaveStatus(""), 1500);
     });
   }, [data]);
 
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showPass, setShowPass] = useState(false);
-  const [passVal, setPassVal] = useState(""); const [passErr, setPassErr] = useState(false);
-  const holdTimer = useRef(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const TABS = isAdmin
-    ? [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"content",label:"Plan Content",icon:"✍️"},{id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},{id:"input",label:"Nhập liệu",icon:"✎"}]
-    : [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"content",label:"Plan Content",icon:"✍️"},{id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"}];
+    ? [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"content",label:"Plan Content",icon:"✍️"},{id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},{id:"keyrank",label:"Từ Khóa",icon:"📊"},{id:"input",label:"Nhập liệu",icon:"✎"}]
+    : [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"content",label:"Plan Content",icon:"✍️"},{id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},{id:"keyrank",label:"Từ Khóa",icon:"📊"}];
 
   const [tab, setTab] = useState("dashboard");
   const [selMonth, setSelMonth] = useState(CURRENT_MONTH);
@@ -218,7 +263,7 @@ export default function App() {
   const urlsReady = useRef(false);
   useEffect(() => {
     if (!urlsReady.current) { urlsReady.current = true; return; }
-    apiSet("urls", urls);
+    apiSet("urls", urls, workspace?.id);
   }, [urls]);
   const [showUrlPanel, setShowUrlPanel] = useState(false);
 
@@ -228,7 +273,7 @@ export default function App() {
   const notesReady = useRef(false);
   useEffect(() => {
     if (!notesReady.current) { notesReady.current = true; return; }
-    apiSet("notes", otherNotes);
+    apiSet("notes", otherNotes, workspace?.id);
   }, [otherNotes]);
   const [noteForm, setNoteForm] = useState({title:"",category:"design",content:"",date:""});
   const [noteMonth, setNoteMonth] = useState(CURRENT_MONTH);
@@ -322,19 +367,9 @@ export default function App() {
     ];
   },[data,selMonth]);
 
-  function holdStart() { holdTimer.current = setTimeout(()=>setShowPass(true), 3000); }
-  function holdEnd()   { clearTimeout(holdTimer.current); }
-  function submitPass() {
-    if (passVal===ADMIN_PASSWORD) {
-      setIsAdmin(true); setShowPass(false); setPassVal(""); setPassErr(false);
-      // Auto-jump to current month
-      setData(d => (!d[CURRENT_MONTH] ? {...d,[CURRENT_MONTH]:JSON.parse(JSON.stringify(EMPTY))} : d));
-      setSelMonth(CURRENT_MONTH);
-      setEditMonth(CURRENT_MONTH);
-      setNoteMonth(CURRENT_MONTH);
-    }
-    else { setPassErr(true); setPassVal(""); }
-  }
+  function holdStart() {}
+  function holdEnd() {}
+
   // ── Export / Import JSON backup ──
   function exportData() {
     const backup = {
@@ -1019,7 +1054,32 @@ export default function App() {
     {label:"Web Chuyển đổi",val:(cur.website?.hotline||0)+(cur.website?.form||0)+(cur.website?.zalo||0),icon:"🎯",c1:"#4a148c",c2:"#7b1fa2"},
   ];
 
+  // Auto-load default workspace for viewers (not logged in)
+  useEffect(() => {
+    if (!authLoading && !user && !workspace) {
+      supabase.from("workspaces").select("*").eq("slug","go-thanh-thuy").single()
+        .then(({data}) => { if (data) selectWorkspace(data, "viewer"); });
+    }
+  }, [authLoading, user]);
+
   // ── RENDER ──
+  if (authLoading) return (
+    <div style={{fontFamily:"'IBM Plex Sans','Segoe UI',sans-serif",background:"#faf8fa",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
+      <div style={{width:52,height:52,borderRadius:14,background:"linear-gradient(135deg,#eec277,#faefdc)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>🌲</div>
+      <div style={{fontSize:15,fontWeight:700,color:"#40123e"}}>Đang tải...</div>
+    </div>
+  );
+
+  if (showAuth && !user) return <Auth onLogin={(u)=>{ loadUserRole(u); setShowAuth(false); }}/>;
+
+  if (user && isSuperAdmin && !workspace) return (
+    <SuperAdminDashboard user={user} onSelectWorkspace={selectWorkspace} onLogout={handleLogout}/>
+  );
+
+  if (user && !workspace) return (
+    <WorkspaceSelect user={user} isSuperAdmin={isSuperAdmin} onSelect={selectWorkspace}/>
+  );
+
   if (loading) return (
     <div style={{fontFamily:"'IBM Plex Sans','Segoe UI',sans-serif",background:"#faf8fa",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
       <div style={{width:52,height:52,borderRadius:14,background:"linear-gradient(135deg,#eec277,#faefdc)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>🌲</div>
@@ -1037,10 +1097,9 @@ export default function App() {
 
           {/* Brand */}
           <div style={{display:"flex",alignItems:"center",gap:isMobile?10:14}}>
-            <div onMouseDown={holdStart} onMouseUp={holdEnd} onMouseLeave={holdEnd} onTouchStart={holdStart} onTouchEnd={holdEnd}
-              title="Giữ 3 giây → Admin" style={{width:isMobile?34:40,height:isMobile?34:40,borderRadius:10,background:`linear-gradient(135deg,${C.gold},${C.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?17:20,cursor:"pointer",userSelect:"none",flexShrink:0,boxShadow:"0 2px 8px #eec27744"}}>🌲</div>
+            <div style={{width:isMobile?34:40,height:isMobile?34:40,borderRadius:10,background:`linear-gradient(135deg,${C.gold},${C.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?17:20,flexShrink:0,boxShadow:"0 2px 8px #eec27744"}}>🌲</div>
             <div>
-              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1}}>Gỗ Thanh Thùy</div>
+              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1}}>{workspace?.name||"Gỗ Thanh Thùy"}</div>
               {!isMobile&&<div style={{fontSize:10,color:`${C.gold}cc`,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Marketing Dashboard</div>}
             </div>
           </div>
@@ -1051,6 +1110,21 @@ export default function App() {
               {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"8px 18px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,borderBottom:act?`2px solid ${C.gold}`:"2px solid transparent",transition:"all .15s"}}>{t.icon} {t.label}</button>; })}
             </div>
           )}
+
+          {/* User area */}
+          <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+            {!user&&<button onClick={()=>setShowAuth(true)} style={{padding:isMobile?"6px 12px":"7px 16px",borderRadius:8,border:`1px solid ${C.gold}`,background:"transparent",color:C.gold,fontSize:isMobile?11:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>🔐 Đăng nhập</button>}
+            {user&&(
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                {!isMobile&&<div style={{textAlign:"right"}}>
+                  <div style={{fontSize:11,color:C.gold,fontWeight:700}}>{user.email?.split("@")[0]}</div>
+                  <div style={{fontSize:9,color:`${C.purpleLight}99`,textTransform:"uppercase",letterSpacing:.5}}>{wsRole==="admin"?"👑 Admin":wsRole==="member"?"✏️ Member":"👁 Viewer"}</div>
+                </div>}
+                {isSuperAdmin&&<button onClick={()=>setWorkspace(null)} style={{padding:isMobile?"5px 10px":"6px 12px",borderRadius:8,border:`1px solid ${C.gold}66`,background:`${C.gold}22`,color:C.gold,fontSize:isMobile?10:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>← Workspaces</button>}
+                <button onClick={handleLogout} style={{padding:isMobile?"5px 10px":"6px 12px",borderRadius:8,border:`1px solid ${C.purpleLight}44`,background:`${C.white}22`,color:C.purpleLight,fontSize:isMobile?10:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>Đăng xuất</button>
+              </div>
+            )}
+          </div>
 
           {/* Mobile hamburger */}
           {isMobile&&(
@@ -1103,6 +1177,7 @@ export default function App() {
         {tab==="input"   && <InputTab />}
         {tab==="content" && <ContentPlan isAdmin={isAdmin} apiGet={apiGet} apiSet={apiSet} isMobile={isMobile}/>}
         {tab==="cautruc" && <CauTruc isMobile={isMobile}/>}
+        {tab==="keyrank" && <KeyRank isAdmin={isAdmin} isMobile={isMobile}/>}
       </div>
 
       {/* ── MOBILE BOTTOM NAV ── */}
@@ -1115,36 +1190,15 @@ export default function App() {
         </div>
       )}
 
-      {/* ── ADMIN MODAL ── */}
-      {showPass&&(
-        <div style={{position:"fixed",inset:0,background:"#00000077",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}
-          onClick={e=>{if(e.target===e.currentTarget){setShowPass(false);setPassVal("");setPassErr(false);}}}>
-          <div style={{background:C.white,borderRadius:20,padding:isMobile?24:36,width:"100%",maxWidth:320,boxShadow:"0 20px 60px #40123e44",border:`1px solid ${C.border}`}}>
-            <div style={{textAlign:"center",marginBottom:20}}>
-              <div style={{fontSize:36,marginBottom:8}}>🔐</div>
-              <div style={{fontSize:18,fontWeight:800,color:C.textMain}}>Đăng nhập Admin</div>
-              <div style={{fontSize:12,color:C.textSub,marginTop:4}}>Nhập mật khẩu quản trị viên</div>
-            </div>
-            <input autoFocus type="password" placeholder="Mật khẩu..." value={passVal}
-              onChange={e=>{setPassVal(e.target.value);setPassErr(false);}}
-              onKeyDown={e=>{if(e.key==="Enter")submitPass();}}
-              style={{...inp,border:`2px solid ${passErr?"#e53935":C.border}`,background:passErr?"#fff5f5":C.offWhite,marginBottom:8}}
-            />
-            {passErr&&<div style={{color:"#e53935",fontSize:12,marginBottom:8,fontWeight:600}}>❌ Mật khẩu không đúng</div>}
-            <button onClick={submitPass} style={{width:"100%",padding:"12px",borderRadius:10,border:"none",cursor:"pointer",background:`linear-gradient(135deg,${C.purple},${C.purpleMid})`,color:C.white,fontWeight:700,fontSize:14,fontFamily:"inherit",marginTop:4}}>Xác nhận</button>
-            <button onClick={()=>{setShowPass(false);setPassVal("");setPassErr(false);}} style={{width:"100%",padding:"10px",borderRadius:10,border:`1px solid ${C.silver}`,cursor:"pointer",background:"transparent",color:C.textSub,fontWeight:600,fontSize:13,fontFamily:"inherit",marginTop:8}}>Huỷ</button>
-          </div>
-        </div>
-      )}
-
       {/* ── FOOTER ── */}
       <div style={{borderTop:`1px solid ${C.border}`,background:C.white,padding:isMobile?"10px 14px":"14px 24px"}}>
         <div style={{maxWidth:1400,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
           <div style={{fontSize:11,color:C.textMuted}}>
             {saveStatus==="saved"&&<span style={{marginRight:8,color:"#2e7d32",fontWeight:700}}>✓ Đã lưu</span>}
             © {new Date().getFullYear()} Gỗ Thanh Thùy
-            {!isAdmin&&<span style={{marginLeft:8,background:C.purpleLight,color:C.purple,padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>Chế độ xem</span>}
-            {isAdmin&&<span style={{marginLeft:8,background:"#e8f5e9",color:"#2e7d32",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10,cursor:"pointer"}} onClick={()=>{setIsAdmin(false);setTab("dashboard");}}>✓ Admin — Đăng xuất</span>}
+            {!user&&<span style={{marginLeft:8,background:C.purpleLight,color:C.purple,padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👁 Chế độ xem</span>}
+            {user&&wsRole==="member"&&<span style={{marginLeft:8,background:"#dbeafe",color:"#1e40af",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>✏️ Member</span>}
+            {user&&wsRole==="admin"&&<span style={{marginLeft:8,background:"#e8f5e9",color:"#2e7d32",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👑 Admin</span>}
           </div>
           {isAdmin&&(
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
