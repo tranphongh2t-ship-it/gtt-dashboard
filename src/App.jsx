@@ -1090,13 +1090,13 @@ export default function App() {
           </div>
         )}
 
-        {tab==="charts"  && <ChartsTab />}
-        {tab==="other"   && <OtherTab />}
+        {tab==="charts"  && ChartsTab()}
+        {tab==="other"   && OtherTab()}
         {tab==="compare" && <CompareTab />}
-        {tab==="input"   && <InputTab />}
+        {tab==="input"   && InputTab()}
         {tab==="content" && <ContentPlan isAdmin={isAdmin} apiGet={apiGet} apiSet={apiSet} isMobile={isMobile}/>}
         {tab==="cautruc" && <CauTruc isMobile={isMobile}/>}
-        {tab==="keyrank" && <KeyRank isAdmin={isAdmin} isMobile={isMobile}/>}
+        {tab==="keyrank" && <KeyRank isAdmin={isAdmin} isMobile={isMobile} apiGet={apiGet} apiSet={apiSet}/>}
       </div>
 
       {/* ── MOBILE BOTTOM NAV ── */}

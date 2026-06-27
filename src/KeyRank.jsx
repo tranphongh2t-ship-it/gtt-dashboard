@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 const C = {
   purple:"#40123e",purpleMid:"#9d5799",purpleLight:"#f0dbef",
@@ -10,7 +10,6 @@ const C = {
 
 const LS_KEY = "gtt_keyrank_v1";
 function lsGet(k){try{const s=localStorage.getItem(k);return s?JSON.parse(s):null;}catch{return null;}}
-function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
 
 const INIT = {
   keywords: [], // [{id, keyword, volume, positions:[{date,pos}], notes}]
@@ -40,10 +39,38 @@ function PosArrow({prev,curr}){
   return<span style={{color:"#dc2626",fontSize:10,fontWeight:700}}>▼{Math.abs(diff)}</span>;
 }
 
-export default function KeyRank({isAdmin, isMobile}){
+export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
   const[tab,setTab]=useState("ranking");
-  const[store,setStore]=useState(()=>lsGet(LS_KEY)||INIT);
+  const[store,setStore]=useState(INIT);
+  const[loading,setLoading]=useState(true);
   const[search,setSearch]=useState("");
+
+  // Load from server, fallback to localStorage for migration
+  useEffect(()=>{
+    async function load(){
+      try {
+        const serverData = await apiGet("keyrank");
+        if(serverData&&typeof serverData==='object'&&Object.keys(serverData).length>0){
+          setStore(serverData);
+        } else {
+          const localData = lsGet(LS_KEY);
+          if(localData&&typeof localData==='object'&&Object.keys(localData).length>0){
+            setStore(localData);
+            apiSet("keyrank",localData);
+          }
+        }
+      } catch {}
+      setLoading(false);
+    }
+    load();
+  },[]);
+
+  // Auto-save to server
+  const storeReady=useRef(false);
+  useEffect(()=>{
+    if(!storeReady.current){storeReady.current=true;return;}
+    apiSet("keyrank",store);
+  },[store]);
   const[sortBy,setSortBy]=useState("pos_asc"); // pos_asc|pos_desc|vol_desc|alpha
   const[editKw,setEditKw]=useState(null); // {id} or null=new
   const[editPage,setEditPage]=useState(null);
@@ -55,7 +82,6 @@ export default function KeyRank({isAdmin, isMobile}){
 
   function save(next){
     setStore(next);
-    lsSet(LS_KEY,next);
   }
 
   // ── Columns = all unique dates sorted ──
@@ -158,6 +184,10 @@ export default function KeyRank({isAdmin, isMobile}){
 
   const inp={background:C.offWhite,border:`1.5px solid ${C.silver}`,borderRadius:8,padding:"8px 12px",color:C.textMain,fontSize:13,outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box"};
   const tabBtn=(id)=>({padding:isMobile?"7px 14px":"8px 20px",borderRadius:10,border:`1.5px solid ${tab===id?"#1e40af":C.silver}`,background:tab===id?"#1e40af":C.white,color:tab===id?C.white:C.textSub,fontWeight:700,fontSize:isMobile?11:13,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",flexShrink:0});
+
+  if(loading){
+    return <div style={{background:C.cardBg,borderRadius:14,border:`1px solid ${C.border}`,padding:"48px 24px",textAlign:"center",color:C.textMuted,fontSize:14}}>Đang tải dữ liệu từ khóa...</div>;
+  }
 
   return(
     <div>
