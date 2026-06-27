@@ -1,9 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { supabase } from "./supabase";
 import { C } from "./colors";
-import Auth from "./Auth";
-import WorkspaceSelect from "./WorkspaceSelect";
-import SuperAdminDashboard from "./SuperAdminDashboard";
 import ContentPlan from "./ContentPlan";
 import CauTruc from "./CauTruc";
 import KeyRank from "./KeyRank";
@@ -33,9 +29,6 @@ const GLOBAL_CSS = `
     .tab-label { display: none !important; }
   }
 `;
-
-// ─── BRAND ───────────────────────────────────────────────────────────────────
-
 
 // Current month auto-detect
 function getCurrentMonth() {
@@ -105,8 +98,6 @@ const FIELDS = {
   ggmaps:  [{key:"views",label:"Lượt xem",icon:"👁"},{key:"searches",label:"Tìm kiếm",icon:"🔍"},{key:"clicks",label:"Clicks",icon:"🖱"},{key:"calls",label:"Gọi điện",icon:"📞"},{key:"directions",label:"Chỉ đường",icon:"🗺️"},{key:"reviews",label:"Đánh giá",icon:"⭐"},{key:"rating",label:"Điểm TB",icon:"🌟"}],
 };
 
-// API functions moved inside App component (see below)
-
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 function fmt(n) {
   if (n===null||n===undefined||isNaN(n)) return "—";
@@ -133,6 +124,24 @@ function useIsMobile() {
   return mob;
 }
 
+// ─── Netlify Blobs API ──────────────────────────────────────────────────────
+async function apiGet(key) {
+  try {
+    const res = await fetch(`/api/store?key=${encodeURIComponent(key)}`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+async function apiSet(key, value) {
+  try {
+    await fetch("/api/store", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, value }),
+    });
+  } catch(e) { console.error("apiSet error:", e); }
+}
+
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 export default function App() {
   // inject CSS once
@@ -145,109 +154,48 @@ export default function App() {
   }, []);
 
   const isMobile = useIsMobile();
-
-  // ── Auth & Workspace state ──
-  const [user, setUser] = useState(null);
-  const [userRole, setUserRole] = useState("viewer");
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const [workspace, setWorkspace] = useState(null);
-  const [wsRole, setWsRole] = useState("viewer");
-  const [showAuth, setShowAuth] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
-  const isAdmin = wsRole === "admin";
-  const isMember = wsRole === "member" || wsRole === "admin";
-  const holdTimer = useRef(null);
+  const isAdmin = false;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) loadUserRole(session.user);
-      else setAuthLoading(false);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) loadUserRole(session.user);
-      else { setUser(null); setUserRole("viewer"); setWorkspace(null); setAuthLoading(false); }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  async function loadUserRole(u) {
-    setUser(u);
-    try {
-      const { data } = await supabase.from("profiles").select("role,is_super_admin").eq("id", u.id).single();
-      setUserRole(data?.role || "member");
-      setIsSuperAdmin(data?.is_super_admin || false);
-    } catch { setUserRole("member"); }
-    setAuthLoading(false);
-  }
-
-  function selectWorkspace(ws, role="member") {
-    setWorkspace(ws);
-    setWsRole(role);
-    setSelMonth(CURRENT_MONTH);
-    setEditMonth(CURRENT_MONTH);
-    setNoteMonth(CURRENT_MONTH);
-  }
-
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    setUser(null); setUserRole("viewer"); setWorkspace(null); setShowAuth(false);
-  }
-
-  // ── Data API using Supabase workspace_data table ──
-  async function apiGet(key, wsId) {
-    const workspaceId = wsId || workspace?.id;
-    if (!workspaceId) return null;
-    try {
-      const { data } = await supabase.from("workspace_data")
-        .select("value").eq("workspace_id", workspaceId).eq("key", key).single();
-      return data?.value ? JSON.parse(data.value) : null;
-    } catch { return null; }
-  }
-  async function apiSet(key, value, wsId) {
-    const workspaceId = wsId || workspace?.id;
-    if (!workspaceId) return;
-    try {
-      await supabase.from("workspace_data").upsert({
-        workspace_id: workspaceId, key, value: JSON.stringify(value),
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "workspace_id,key" });
-    } catch(e) { console.error("apiSet error:", e); }
-  }
 
   const [data, setData] = useState(INITIAL_DATA);
   const [saveStatus, setSaveStatus] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Load data from Netlify Blobs on mount
   useEffect(() => {
-    if (!workspace?.id) return;
     async function load() {
       setLoading(true);
       const [d, u, n] = await Promise.all([
-        apiGet("data", workspace.id), apiGet("urls", workspace.id), apiGet("notes", workspace.id)
+        apiGet("data"), apiGet("urls"), apiGet("notes")
       ]);
-      setData(d && Object.keys(d).length ? d : INITIAL_DATA);
-      setUrls(u && Object.keys(u).length ? u : {});
-      setOtherNotes(n && Object.keys(n).length ? n : {});
+      if (d && typeof d === 'object' && Object.keys(d).length) setData(d);
+      if (u && typeof u === 'object' && Object.keys(u).length) setUrls(u);
+      if (n && typeof n === 'object' && Object.keys(n).length) setOtherNotes(n);
       setLoading(false);
     }
     load();
-  }, [workspace?.id]);
+  }, []);
 
+  // Auto-save data changes to Netlify Blobs
   const dataReady = useRef(false);
   useEffect(() => {
     if (!dataReady.current) { dataReady.current = true; return; }
-    if (!workspace?.id) return;
     setSaveStatus("saving");
-    apiSet("data", data, workspace.id).then(() => {
+    apiSet("data", data).then(() => {
       setSaveStatus("saved");
       setTimeout(() => setSaveStatus(""), 1500);
     });
   }, [data]);
 
-  const TABS = isAdmin
-    ? [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"content",label:"Plan Content",icon:"✍️"},{id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},{id:"keyrank",label:"Từ Khóa",icon:"📊"},{id:"input",label:"Nhập liệu",icon:"✎"}]
-    : [{id:"dashboard",label:"Dashboard",icon:"▦"},{id:"charts",label:"Biểu đồ",icon:"↗"},{id:"compare",label:"So sánh",icon:"⇄"},{id:"other",label:"Công Việc Khác",icon:"📋"},{id:"content",label:"Plan Content",icon:"✍️"},{id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},{id:"keyrank",label:"Từ Khóa",icon:"📊"}];
+  const TABS = [
+    {id:"dashboard",label:"Dashboard",icon:"▦"},
+    {id:"charts",label:"Biểu đồ",icon:"↗"},
+    {id:"compare",label:"So sánh",icon:"⇄"},
+    {id:"other",label:"Công Việc Khác",icon:"📋"},
+    {id:"content",label:"Plan Content",icon:"✍️"},
+    {id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},
+    {id:"keyrank",label:"Từ Khóa",icon:"📊"},
+  ];
 
   const [tab, setTab] = useState("dashboard");
   const [selMonth, setSelMonth] = useState(CURRENT_MONTH);
@@ -258,27 +206,25 @@ export default function App() {
   const formRefs = useRef({});
 
   // ── URL posts state ──
-  // urls[month][platform] = [{id, title, url, date, type}]
   const [urls, setUrls] = useState({});
   const urlsReady = useRef(false);
   useEffect(() => {
     if (!urlsReady.current) { urlsReady.current = true; return; }
-    apiSet("urls", urls, workspace?.id);
+    apiSet("urls", urls);
   }, [urls]);
   const [showUrlPanel, setShowUrlPanel] = useState(false);
 
   // ── Other tasks state ──
-  // otherNotes[month] = [{id, title, category, content, done, date}]
   const [otherNotes, setOtherNotes] = useState({});
   const notesReady = useRef(false);
   useEffect(() => {
     if (!notesReady.current) { notesReady.current = true; return; }
-    apiSet("notes", otherNotes, workspace?.id);
+    apiSet("notes", otherNotes);
   }, [otherNotes]);
   const [noteForm, setNoteForm] = useState({title:"",category:"design",content:"",date:""});
   const [noteMonth, setNoteMonth] = useState(CURRENT_MONTH);
   const [noteFilter, setNoteFilter] = useState("all");
-  const [noteDateFilter, setNoteDateFilter] = useState("all"); // all | today | thisweek | custom
+  const [noteDateFilter, setNoteDateFilter] = useState("all");
   const [noteDateFrom, setNoteDateFrom] = useState("");
   const [noteDateTo, setNoteDateTo] = useState("");
 
@@ -293,37 +239,6 @@ export default function App() {
     {id:"geo",     label:"GEO",         icon:"🌍", color:"#00838f"},
     {id:"other",    label:"Khác",        icon:"📌", color:"#69626a"},
   ];
-
-  function addNote() {
-    if(!noteForm.title.trim()) return;
-    const entry = {...noteForm, id:Date.now(), done:false, date:noteForm.date||new Date().toISOString().slice(0,10)};
-    setOtherNotes(prev => ({...prev, [noteMonth]: [...(prev[noteMonth]||[]), entry]}));
-    setNoteForm({title:"",category:noteForm.category,content:"",date:""});
-  }
-  function toggleNote(month, id) {
-    setOtherNotes(prev => ({...prev, [month]: (prev[month]||[]).map(n=>n.id===id?{...n,done:!n.done}:n)}));
-  }
-  function removeNote(month, id) {
-    setOtherNotes(prev => ({...prev, [month]: (prev[month]||[]).filter(n=>n.id!==id)}));
-  }
-  const [urlForm, setUrlForm] = useState({title:"",url:"",date:"",type:"post"});
-
-  function addUrl() {
-    if(!urlForm.url.trim()) return;
-    const entry = {...urlForm, id: Date.now(), date: urlForm.date || new Date().toISOString().slice(0,10)};
-    setUrls(prev => {
-      const mo = prev[editMonth] || {};
-      const pl = mo[editPlat] || [];
-      return {...prev, [editMonth]: {...mo, [editPlat]: [...pl, entry]}};
-    });
-    setUrlForm({title:"",url:"",date:"",type:"post"});
-  }
-  function removeUrl(id) {
-    setUrls(prev => {
-      const pl = (prev[editMonth]?.[editPlat] || []).filter(u=>u.id!==id);
-      return {...prev, [editMonth]: {...(prev[editMonth]||{}), [editPlat]: pl}};
-    });
-  }
 
   const dataMonths = useMemo(() => ALL_MONTHS.filter(m=>data[m]).sort(), [data]);
   const prevMonth  = useMemo(() => { const i=dataMonths.indexOf(selMonth); return i>0?dataMonths[i-1]:null; }, [dataMonths,selMonth]);
@@ -367,16 +282,9 @@ export default function App() {
     ];
   },[data,selMonth]);
 
-  function holdStart() {}
-  function holdEnd() {}
-
   // ── Export / Import JSON backup ──
   function exportData() {
-    const backup = {
-      exportedAt: new Date().toISOString(),
-      version: "gtt-v1",
-      data, urls, otherNotes
-    };
+    const backup = { exportedAt: new Date().toISOString(), version: "gtt-v1", data, urls, otherNotes };
     const blob = new Blob([JSON.stringify(backup, null, 2)], {type:"application/json"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -448,9 +356,6 @@ export default function App() {
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,paddingBottom:12,borderBottom:`1px solid ${C.border}`}}>
           <div style={{width:isMobile?36:42,height:isMobile?36:42,borderRadius:10,background:`${p.color}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?18:20,border:`1px solid ${p.color}25`,flexShrink:0}}>{p.icon}</div>
           <span style={{fontSize:isMobile?14:17,fontWeight:800,color:C.textMain}}>{p.label}</span>
-          {isAdmin&&(
-            <button onClick={()=>goInput(platform)} style={{marginLeft:"auto",padding:isMobile?"5px 10px":"6px 14px",borderRadius:8,border:`1px solid ${C.purpleMid}`,background:"transparent",color:C.purpleMid,fontSize:isMobile?11:12,fontWeight:700,cursor:"pointer",flexShrink:0}}>✎ Nhập</button>
-          )}
         </div>
         {/* Metrics grid */}
         <div className="plat-metrics" style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(fs.length,isMobile?2:5)},1fr)`,gap:isMobile?8:10}}>
@@ -492,12 +397,10 @@ export default function App() {
             </div>
           </div>
         )}
-        {/* URL Post List — shown to everyone */}
+        {/* URL Post List */}
         {(()=>{
           const platUrls = (urls[selMonth]?.[platform])||[];
           if(platUrls.length===0) return null;
-          const TYPE_COLOR={"post":C.purple,"video":"#ff0000","image":"#0a66c2","reel":"#e60023","story":"#eec277","pin":"#e60023"};
-          const TYPE_LABEL={"post":"Bài viết","video":"Video","image":"Ảnh","reel":"Reel","story":"Story","pin":"Pin"};
           return (
             <div style={{marginTop:14,borderTop:`1px solid ${C.border}`,paddingTop:12}}>
               <div style={{fontSize:10,color:C.purpleMid,fontWeight:800,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>🔗 Bài đăng tháng này ({platUrls.length})</div>
@@ -516,6 +419,9 @@ export default function App() {
       </Card>
     );
   }
+
+  const TYPE_COLOR={"post":C.purple,"video":"#ff0000","image":"#0a66c2","reel":"#e60023","story":"#eec277","pin":"#e60023"};
+  const TYPE_LABEL={"post":"Bài viết","video":"Video","image":"Ảnh","reel":"Reel","story":"Story","pin":"Pin"};
 
   // ── Input Tab ──
   function InputTab() {
@@ -546,7 +452,7 @@ export default function App() {
           </div>
         </Card>
 
-        {/* Platform tabs — scrollable on mobile */}
+        {/* Platform tabs */}
         <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,marginBottom:12,WebkitOverflowScrolling:"touch"}}>
           {PLATFORMS.map(pl=>{
             const act=editPlat===pl; const ppm=PM[pl];
@@ -591,62 +497,61 @@ export default function App() {
           </div>
           {showUrlPanel&&(
             <div>
-              {/* Add form */}
-              <div style={{background:C.goldLight,borderRadius:12,padding:isMobile?12:16,border:`1px solid ${C.gold}`,marginBottom:16}}>
-                <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr 140px 120px",gap:10,marginBottom:10}}>
-                  <div>
-                    <label style={lbl}>📝 Tiêu đề bài</label>
-                    <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="Tên bài viết / video..."
-                      defaultValue={urlForm.title}
-                      ref={el=>{ if(el) el._field="title"; }}
-                      onChange={e=>{ urlForm.title=e.target.value; }}
-                      onBlur={e=>setUrlForm(f=>({...f,title:e.target.value}))}
-                    />
-                  </div>
-                  <div>
-                    <label style={lbl}>🔗 URL</label>
-                    <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="https://..."
-                      defaultValue={urlForm.url}
-                      onChange={e=>{ urlForm.url=e.target.value; }}
-                      onBlur={e=>setUrlForm(f=>({...f,url:e.target.value}))}
-                      onKeyDown={e=>{if(e.key==="Enter")addUrl();}}
-                    />
-                  </div>
-                  <div>
-                    <label style={lbl}>📅 Ngày đăng</label>
-                    <input type="date" style={{...inp,padding:"8px 10px",fontSize:13}} value={urlForm.date} onChange={e=>setUrlForm(f=>({...f,date:e.target.value}))}/>
-                  </div>
-                  <div>
-                    <label style={lbl}>🏷 Loại</label>
-                    <select style={{...inp,padding:"8px 10px",fontSize:13,cursor:"pointer"}} value={urlForm.type} onChange={e=>setUrlForm(f=>({...f,type:e.target.value}))}>
-                      <option value="post">Bài viết</option>
-                      <option value="video">Video</option>
-                      <option value="image">Ảnh</option>
-                      <option value="reel">Reel</option>
-                      <option value="story">Story</option>
-                      <option value="pin">Pin</option>
-                    </select>
-                  </div>
-                </div>
-                <Btn variant="primary" onClick={addUrl}>+ Thêm bài đăng</Btn>
-              </div>
-              {/* List */}
               {(()=>{
                 const platUrls=(urls[editMonth]?.[editPlat])||[];
-                const TYPE_COLOR={"post":C.purple,"video":"#ff0000","image":"#0a66c2","reel":"#e60023","story":"#eec277","pin":"#e60023"};
-                const TYPE_LABEL={"post":"Bài viết","video":"Video","image":"Ảnh","reel":"Reel","story":"Story","pin":"Pin"};
-                if(platUrls.length===0) return <div style={{color:C.textMuted,fontSize:13,textAlign:"center",padding:"16px 0"}}>Chưa có bài đăng nào. Thêm ở trên!</div>;
                 return (
-                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    {platUrls.map((u,i)=>(
-                      <div key={u.id} style={{display:"flex",alignItems:"center",gap:8,padding:isMobile?"8px 10px":"10px 12px",background:i%2===0?C.bg:C.white,borderRadius:10,border:`1px solid ${C.border}`,overflow:"hidden"}}>
-                        <span style={{fontSize:isMobile?9:10,fontWeight:700,color:C.white,background:TYPE_COLOR[u.type]||C.purple,padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{TYPE_LABEL[u.type]||u.type}</span>
-                        <span style={{fontSize:isMobile?11:13,fontWeight:600,color:C.textMain,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.title||"—"}</span>
-                        <a href={u.url} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:C.purpleMid,textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,border:`1px solid ${C.purpleMid}`,borderRadius:6,padding:"2px 7px",fontWeight:600}}>🔗</a>
-                        <span style={{fontSize:10,color:C.textMuted,whiteSpace:"nowrap",flexShrink:0,display:isMobile?"none":"inline"}}>{u.date}</span>
-                        <button onClick={()=>removeUrl(u.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:"#c62828",fontSize:18,padding:"0 2px",flexShrink:0,lineHeight:1}}>×</button>
+                  <div>
+                    {/* Add form only for viewer — data won't persist across refreshes */}
+                    <div style={{background:C.goldLight,borderRadius:12,padding:isMobile?12:16,border:`1px solid ${C.gold}`,marginBottom:16}}>
+                      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr 140px 120px",gap:10,marginBottom:10}}>
+                        <div>
+                          <label style={lbl}>📝 Tiêu đề bài</label>
+                          <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="Tên bài viết / video..."
+                            id="url-title-input"
+                            onBlur={e=>setUrlForm(f=>({...f,title:e.target.value}))}
+                          />
+                        </div>
+                        <div>
+                          <label style={lbl}>🔗 URL</label>
+                          <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="https://..."
+                            id="url-url-input"
+                            onBlur={e=>setUrlForm(f=>({...f,url:e.target.value}))}
+                            onKeyDown={e=>{if(e.key==="Enter"){addUrl();}}}
+                          />
+                        </div>
+                        <div>
+                          <label style={lbl}>📅 Ngày đăng</label>
+                          <input type="date" style={{...inp,padding:"8px 10px",fontSize:13}} value={urlForm.date} onChange={e=>setUrlForm(f=>({...f,date:e.target.value}))}/>
+                        </div>
+                        <div>
+                          <label style={lbl}>🏷 Loại</label>
+                          <select style={{...inp,padding:"8px 10px",fontSize:13,cursor:"pointer"}} value={urlForm.type} onChange={e=>setUrlForm(f=>({...f,type:e.target.value}))}>
+                            <option value="post">Bài viết</option>
+                            <option value="video">Video</option>
+                            <option value="image">Ảnh</option>
+                            <option value="reel">Reel</option>
+                            <option value="story">Story</option>
+                            <option value="pin">Pin</option>
+                          </select>
+                        </div>
                       </div>
-                    ))}
+                      <Btn variant="primary" onClick={addUrl}>+ Thêm bài đăng</Btn>
+                    </div>
+                    {platUrls.length===0 ? (
+                      <div style={{color:C.textMuted,fontSize:13,textAlign:"center",padding:"16px 0"}}>Chưa có bài đăng nào. Thêm ở trên!</div>
+                    ) : (
+                      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                        {platUrls.map((u,i)=>(
+                          <div key={u.id} style={{display:"flex",alignItems:"center",gap:8,padding:isMobile?"8px 10px":"10px 12px",background:i%2===0?C.bg:C.white,borderRadius:10,border:`1px solid ${C.border}`,overflow:"hidden"}}>
+                            <span style={{fontSize:isMobile?9:10,fontWeight:700,color:C.white,background:TYPE_COLOR[u.type]||C.purple,padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{TYPE_LABEL[u.type]||u.type}</span>
+                            <span style={{fontSize:isMobile?11:13,fontWeight:600,color:C.textMain,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.title||"—"}</span>
+                            <a href={u.url} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:C.purpleMid,textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,border:`1px solid ${C.purpleMid}`,borderRadius:6,padding:"2px 7px",fontWeight:600}}>🔗</a>
+                            <span style={{fontSize:10,color:C.textMuted,whiteSpace:"nowrap",flexShrink:0,display:isMobile?"none":"inline"}}>{u.date}</span>
+                            <button onClick={()=>removeUrl(u.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:"#c62828",fontSize:18,padding:"0 2px",flexShrink:0,lineHeight:1}}>×</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })()}
@@ -666,7 +571,6 @@ export default function App() {
                     <div style={{fontSize:isMobile?11:13,fontWeight:700,color:act?C.purple:C.textSub}}>{ML[m]}</div>
                     <div style={{fontSize:9,color:cnt===7?"#2e7d32":cnt>0?"#e65100":C.textMuted,marginTop:2,fontWeight:600}}>{cnt}/7</div>
                   </button>
-                  <button onClick={()=>deleteMonth(m)} title="Xoá tháng này" style={{position:"absolute",top:-6,right:-6,width:18,height:18,borderRadius:"50%",border:"none",background:"#e53935",color:"#fff",fontSize:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,lineHeight:1}}>×</button>
                 </div>
               );
             })}
@@ -803,7 +707,7 @@ export default function App() {
           </ResponsiveContainer>
         </Card>
 
-        {/* Platform selector - scrollable */}
+        {/* Platform selector */}
         <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,marginBottom:12,WebkitOverflowScrolling:"touch"}}>
           {PLATFORMS.map(pl=>{ const act=cp===pl; const ppm=PM[pl]; return <button key={pl} onClick={()=>setCp(pl)} style={{padding:isMobile?"7px 12px":"8px 16px",borderRadius:10,cursor:"pointer",fontFamily:"inherit",border:`1.5px solid ${act?ppm.color:C.silver}`,fontWeight:700,fontSize:isMobile?11:13,background:act?ppm.color:C.white,color:act?C.white:C.textSub,whiteSpace:"nowrap",flexShrink:0}}>{ppm.icon} {ppm.label}</button>; })}
         </div>
@@ -881,11 +785,9 @@ export default function App() {
     const today = new Date().toISOString().slice(0,10);
     const weekStart = new Date(Date.now() - 6*24*60*60*1000).toISOString().slice(0,10);
     const filtered = monthNotes.filter(n => {
-      // status filter
       if (noteFilter==="done" && !n.done) return false;
       if (noteFilter==="todo" && n.done) return false;
       if (noteFilter!=="all"&&noteFilter!=="done"&&noteFilter!=="todo" && n.category!==noteFilter) return false;
-      // date filter
       if (noteDateFilter==="today" && n.date !== today) return false;
       if (noteDateFilter==="thisweek" && n.date < weekStart) return false;
       if (noteDateFilter==="custom") {
@@ -899,20 +801,15 @@ export default function App() {
 
     return (
       <div>
-        {/* Month selector */}
         <Card>
           <SecTitle>Chọn tháng</SecTitle>
           <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
             {dataMonths.map(m=>{ const act=noteMonth===m; return (
               <button key={m} onClick={()=>setNoteMonth(m)} style={{padding:isMobile?"5px 10px":"6px 14px",borderRadius:8,border:"none",cursor:"pointer",fontSize:isMobile?11:12,fontWeight:700,fontFamily:"inherit",background:act?`linear-gradient(135deg,${C.purple},${C.purpleMid})`:C.offWhite,color:act?C.white:C.textSub,whiteSpace:"nowrap"}}>{ML[m]}</button>
             );})}
-            {isAdmin && (
-              <button onClick={()=>setShowAdd(true)} style={{padding:isMobile?"5px 10px":"6px 14px",borderRadius:8,border:`1px dashed ${C.purpleMid}`,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",background:"transparent",color:C.purpleMid}}>+ Tháng mới</button>
-            )}
           </div>
         </Card>
 
-        {/* Summary strip */}
         {monthNotes.length>0&&(
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:isMobile?12:18}}>
             {[
@@ -929,7 +826,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Progress bar */}
         {monthNotes.length>0&&(
           <Card style={{padding:isMobile?12:16,marginBottom:isMobile?12:18}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -939,43 +835,6 @@ export default function App() {
             <div style={{height:10,background:C.silver,borderRadius:10,overflow:"hidden"}}>
               <div style={{height:"100%",width:`${pctDone}%`,background:`linear-gradient(90deg,${C.purple},${C.purpleMid})`,borderRadius:10,transition:"width .4s ease"}}/>
             </div>
-          </Card>
-        )}
-
-        {/* Add form — admin only */}
-        {isAdmin&&(
-          <Card>
-            <SecTitle>➕ Thêm công việc — {ML[noteMonth]}</SecTitle>
-            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"2fr 1fr 1fr",gap:10,marginBottom:10}}>
-              <div style={{gridColumn:isMobile?"1/-1":"auto"}}>
-                <label style={lbl}>📝 Tên công việc *</label>
-                <input style={{...inp,padding:"9px 12px",fontSize:13}} placeholder="Tên công việc..."
-                  defaultValue={noteForm.title}
-                  onChange={e=>{ noteForm.title=e.target.value; }}
-                  onBlur={e=>setNoteForm(f=>({...f,title:e.target.value}))}
-                  onKeyDown={e=>{if(e.key==="Enter")addNote();}}
-                />
-              </div>
-              <div>
-                <label style={lbl}>🏷 Danh mục</label>
-                <select style={{...inp,padding:"9px 12px",fontSize:13,cursor:"pointer"}} value={noteForm.category} onChange={e=>setNoteForm(f=>({...f,category:e.target.value}))}>
-                  {NOTE_CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={lbl}>📅 Ngày</label>
-                <input type="date" style={{...inp,padding:"9px 12px",fontSize:13}} value={noteForm.date} onChange={e=>setNoteForm(f=>({...f,date:e.target.value}))}/>
-              </div>
-            </div>
-            <div style={{marginBottom:12}}>
-              <label style={lbl}>📄 Ghi chú thêm</label>
-              <textarea style={{...inp,padding:"9px 12px",fontSize:13,minHeight:72,resize:"vertical"}} placeholder="Chi tiết công việc, kết quả, ghi chú..."
-                defaultValue={noteForm.content}
-                onChange={e=>{ noteForm.content=e.target.value; }}
-                onBlur={e=>setNoteForm(f=>({...f,content:e.target.value}))}
-              />
-            </div>
-            <Btn variant="primary" onClick={addNote}>+ Thêm công việc</Btn>
           </Card>
         )}
 
@@ -1007,18 +866,16 @@ export default function App() {
             </div>
           </div>
         )}
-        {/* Notes list */}
-        {filtered.length===0&&<Card><div style={{textAlign:"center",color:C.textMuted,padding:"32px 0",fontSize:13}}>{monthNotes.length===0?"Chưa có công việc nào. Thêm ở trên!":"Không có công việc nào trong danh mục này."}</div></Card>}
+        {filtered.length===0&&<Card><div style={{textAlign:"center",color:C.textMuted,padding:"32px 0",fontSize:13}}>{monthNotes.length===0?"Chưa có công việc nào.":"Không có công việc nào trong danh mục này."}</div></Card>}
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {filtered.map(n=>{
             const cat=NOTE_CATS.find(c=>c.id===n.category)||NOTE_CATS[6];
             return (
               <div key={n.id} style={{background:n.done?C.offWhite:C.cardBg,borderRadius:14,border:`1px solid ${n.done?C.silver:C.border}`,padding:isMobile?"12px 14px":"14px 18px",boxShadow:n.done?"none":"0 2px 8px #40123e08",opacity:n.done?.75:1,transition:"all .2s"}}>
                 <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
-                  {/* Checkbox — admin only */}
-                  <button onClick={()=>isAdmin&&toggleNote(noteMonth,n.id)} style={{width:22,height:22,borderRadius:6,border:`2px solid ${n.done?"#2e7d32":C.purpleMid}`,background:n.done?"#2e7d32":"transparent",cursor:isAdmin?"pointer":"default",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,marginTop:1,opacity:isAdmin?1:0.7}}>
+                  <div style={{width:22,height:22,borderRadius:6,border:`2px solid ${n.done?"#2e7d32":C.purpleMid}`,background:n.done?"#2e7d32":"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,marginTop:1,opacity:0.7}}>
                     {n.done?"✓":""}
-                  </button>
+                  </div>
                   <div style={{flex:1,minWidth:0,overflow:"hidden"}}>
                     <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:n.content?6:0}}>
                       <span style={{fontSize:isMobile?12:14,fontWeight:700,color:n.done?C.textMuted:C.textMain,textDecoration:n.done?"line-through":"none"}}>{n.title}</span>
@@ -1033,7 +890,6 @@ export default function App() {
                       )}
                     </div>}
                   </div>
-                  {isAdmin&&<button onClick={()=>removeNote(noteMonth,n.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:C.textMuted,fontSize:18,padding:"0 2px",flexShrink:0,lineHeight:1}}>×</button>}
                 </div>
               </div>
             );
@@ -1054,32 +910,7 @@ export default function App() {
     {label:"Web Chuyển đổi",val:(cur.website?.hotline||0)+(cur.website?.form||0)+(cur.website?.zalo||0),icon:"🎯",c1:"#4a148c",c2:"#7b1fa2"},
   ];
 
-  // Auto-load default workspace for viewers (not logged in)
-  useEffect(() => {
-    if (!authLoading && !user && !workspace) {
-      supabase.from("workspaces").select("*").eq("slug","go-thanh-thuy").single()
-        .then(({data}) => { if (data) selectWorkspace(data, "viewer"); });
-    }
-  }, [authLoading, user]);
-
   // ── RENDER ──
-  if (authLoading) return (
-    <div style={{fontFamily:"'IBM Plex Sans','Segoe UI',sans-serif",background:"#faf8fa",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
-      <div style={{width:52,height:52,borderRadius:14,background:"linear-gradient(135deg,#eec277,#faefdc)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>🌲</div>
-      <div style={{fontSize:15,fontWeight:700,color:"#40123e"}}>Đang tải...</div>
-    </div>
-  );
-
-  if (showAuth && !user) return <Auth onLogin={(u)=>{ loadUserRole(u); setShowAuth(false); }}/>;
-
-  if (user && isSuperAdmin && !workspace) return (
-    <SuperAdminDashboard user={user} onSelectWorkspace={selectWorkspace} onLogout={handleLogout}/>
-  );
-
-  if (user && !workspace) return (
-    <WorkspaceSelect user={user} isSuperAdmin={isSuperAdmin} onSelect={selectWorkspace}/>
-  );
-
   if (loading) return (
     <div style={{fontFamily:"'IBM Plex Sans','Segoe UI',sans-serif",background:"#faf8fa",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
       <div style={{width:52,height:52,borderRadius:14,background:"linear-gradient(135deg,#eec277,#faefdc)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>🌲</div>
@@ -1099,7 +930,7 @@ export default function App() {
           <div style={{display:"flex",alignItems:"center",gap:isMobile?10:14}}>
             <div style={{width:isMobile?34:40,height:isMobile?34:40,borderRadius:10,background:`linear-gradient(135deg,${C.gold},${C.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?17:20,flexShrink:0,boxShadow:"0 2px 8px #eec27744"}}>🌲</div>
             <div>
-              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1}}>{workspace?.name||"Gỗ Thanh Thùy"}</div>
+              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1}}>Gỗ Thanh Thùy</div>
               {!isMobile&&<div style={{fontSize:10,color:`${C.gold}cc`,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Marketing Dashboard</div>}
             </div>
           </div>
@@ -1110,21 +941,6 @@ export default function App() {
               {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"8px 18px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,borderBottom:act?`2px solid ${C.gold}`:"2px solid transparent",transition:"all .15s"}}>{t.icon} {t.label}</button>; })}
             </div>
           )}
-
-          {/* User area */}
-          <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-            {!user&&<button onClick={()=>setShowAuth(true)} style={{padding:isMobile?"6px 12px":"7px 16px",borderRadius:8,border:`1px solid ${C.gold}`,background:"transparent",color:C.gold,fontSize:isMobile?11:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>🔐 Đăng nhập</button>}
-            {user&&(
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                {!isMobile&&<div style={{textAlign:"right"}}>
-                  <div style={{fontSize:11,color:C.gold,fontWeight:700}}>{user.email?.split("@")[0]}</div>
-                  <div style={{fontSize:9,color:`${C.purpleLight}99`,textTransform:"uppercase",letterSpacing:.5}}>{wsRole==="admin"?"👑 Admin":wsRole==="member"?"✏️ Member":"👁 Viewer"}</div>
-                </div>}
-                {isSuperAdmin&&<button onClick={()=>setWorkspace(null)} style={{padding:isMobile?"5px 10px":"6px 12px",borderRadius:8,border:`1px solid ${C.gold}66`,background:`${C.gold}22`,color:C.gold,fontSize:isMobile?10:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>← Workspaces</button>}
-                <button onClick={handleLogout} style={{padding:isMobile?"5px 10px":"6px 12px",borderRadius:8,border:`1px solid ${C.purpleLight}44`,background:`${C.white}22`,color:C.purpleLight,fontSize:isMobile?10:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>Đăng xuất</button>
-              </div>
-            )}
-          </div>
 
           {/* Mobile hamburger */}
           {isMobile&&(
@@ -1196,17 +1012,13 @@ export default function App() {
           <div style={{fontSize:11,color:C.textMuted}}>
             {saveStatus==="saved"&&<span style={{marginRight:8,color:"#2e7d32",fontWeight:700}}>✓ Đã lưu</span>}
             © {new Date().getFullYear()} Gỗ Thanh Thùy
-            {!user&&<span style={{marginLeft:8,background:C.purpleLight,color:C.purple,padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👁 Chế độ xem</span>}
-            {user&&wsRole==="member"&&<span style={{marginLeft:8,background:"#dbeafe",color:"#1e40af",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>✏️ Member</span>}
-            {user&&wsRole==="admin"&&<span style={{marginLeft:8,background:"#e8f5e9",color:"#2e7d32",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👑 Admin</span>}
+            <span style={{marginLeft:8,background:C.purpleLight,color:C.purple,padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👁 Viewer</span>
           </div>
-          {isAdmin&&(
-            <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <input ref={importRef} type="file" accept=".json" style={{display:"none"}} onChange={importData}/>
-              <button onClick={()=>importRef.current.click()} style={{padding:"6px 14px",borderRadius:8,border:`1px solid ${C.purpleMid}`,background:"transparent",color:C.purpleMid,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>📂 Import</button>
-              <button onClick={exportData} style={{padding:"6px 14px",borderRadius:8,border:"none",background:`linear-gradient(135deg,${C.purple},${C.purpleMid})`,color:C.white,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💾 Export JSON</button>
-            </div>
-          )}
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <input ref={importRef} type="file" accept=".json" style={{display:"none"}} onChange={importData}/>
+            <button onClick={()=>importRef.current.click()} style={{padding:"6px 14px",borderRadius:8,border:`1px solid ${C.purpleMid}`,background:"transparent",color:C.purpleMid,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>📂 Import</button>
+            <button onClick={exportData} style={{padding:"6px 14px",borderRadius:8,border:"none",background:`linear-gradient(135deg,${C.purple},${C.purpleMid})`,color:C.white,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💾 Export JSON</button>
+          </div>
         </div>
       </div>
     </div>
