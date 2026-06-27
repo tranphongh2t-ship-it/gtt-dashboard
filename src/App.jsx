@@ -387,21 +387,21 @@ export default function App() {
     });
   }
 
-  // ── Shared Components ──
-  const Card = ({children, style={}}) => (
+  // ── Shared Components (memoized to prevent React remount on every render) ──
+  const Card = useMemo(() => ({children, style={}}) => (
     <div style={{background:C.cardBg,borderRadius:isMobile?12:16,border:`1px solid ${C.border}`,padding:isMobile?14:22,marginBottom:isMobile?12:18,boxShadow:"0 2px 12px #40123e0a",...style}}>{children}</div>
-  );
-  const SecTitle = ({children}) => (
+  ), [isMobile]);
+  const SecTitle = useMemo(() => ({children}) => (
     <div style={{fontSize:isMobile?10:11,fontWeight:800,color:C.purpleMid,marginBottom:isMobile?10:16,textTransform:"uppercase",letterSpacing:1.5,display:"flex",alignItems:"center",gap:8}}>
       <span style={{display:"inline-block",width:3,height:14,background:`linear-gradient(180deg,${C.purple},${C.purpleMid})`,borderRadius:2}}/>
       {children}
     </div>
-  );
+  ), [isMobile]);
   const inp = {background:C.offWhite,border:`1.5px solid ${C.silver}`,borderRadius:10,padding:"10px 14px",color:C.textMain,fontSize:15,width:"100%",outline:"none",transition:"border .15s",fontFamily:"inherit"};
   const lbl = {fontSize:11,color:C.textSub,fontWeight:700,marginBottom:5,display:"block",textTransform:"uppercase",letterSpacing:.5};
-  const Btn = ({children,variant="primary",onClick,style={}}) => (
+  const Btn = useMemo(() => ({children,variant="primary",onClick,style={}}) => (
     <button onClick={onClick} style={{padding:isMobile?"9px 16px":"10px 22px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:isMobile?12:13,fontFamily:"inherit",background:variant==="primary"?`linear-gradient(135deg,${C.purple},${C.purpleMid})`:variant==="success"?"linear-gradient(135deg,#2e7d32,#43a047)":variant==="ghost"?"transparent":C.offWhite,color:variant==="ghost"?C.textSub:C.white,border:variant==="ghost"?`1px solid ${C.silver}`:"none",...style}}>{children}</button>
-  );
+  ), [isMobile]);
 
   // ── Platform Card ──
   function PlatCard({platform}) {
