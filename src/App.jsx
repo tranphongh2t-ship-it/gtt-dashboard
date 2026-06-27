@@ -230,6 +230,13 @@ export default function App() {
     apiSet("urls", urls);
   }, [urls]);
   const [showUrlPanel, setShowUrlPanel] = useState(false);
+  const [copiedUrlId, setCopiedUrlId] = useState(null);
+
+  function copyUrl(url, id) {
+    navigator.clipboard.writeText(url);
+    setCopiedUrlId(id);
+    setTimeout(() => setCopiedUrlId(null), 1500);
+  }
 
   // ── Other tasks state ──
   const [otherNotes, setOtherNotes] = useState({});
@@ -361,6 +368,24 @@ export default function App() {
     setOtherNotes(prev => ({...prev, [month]: (prev[month]||[]).filter(n=>n.id!==id)}));
   }
 
+  // ── URL helpers ──
+  function addUrl() {
+    if(!urlForm.url.trim()) return;
+    const entry = {...urlForm, id: Date.now(), date: urlForm.date || new Date().toISOString().slice(0,10)};
+    setUrls(prev => {
+      const mo = prev[editMonth] || {};
+      const pl = mo[editPlat] || [];
+      return {...prev, [editMonth]: {...mo, [editPlat]: [...pl, entry]}};
+    });
+    setUrlForm({title:"",url:"",date:"",type:"post"});
+  }
+  function removeUrl(id) {
+    setUrls(prev => {
+      const pl = (prev[editMonth]?.[editPlat] || []).filter(u=>u.id!==id);
+      return {...prev, [editMonth]: {...(prev[editMonth]||{}), [editPlat]: pl}};
+    });
+  }
+
   // ── Shared Components ──
   const Card = ({children, style={}}) => (
     <div style={{background:C.cardBg,borderRadius:isMobile?12:16,border:`1px solid ${C.border}`,padding:isMobile?14:22,marginBottom:isMobile?12:18,boxShadow:"0 2px 12px #40123e0a",...style}}>{children}</div>
@@ -442,6 +467,7 @@ export default function App() {
                   <div key={u.id} style={{display:"flex",alignItems:"center",gap:8,padding:isMobile?"8px 10px":"10px 12px",background:C.bg,borderRadius:10,border:`1px solid ${C.border}`,overflow:"hidden"}}>
                     <span style={{fontSize:isMobile?10:11,fontWeight:700,color:C.white,background:TYPE_COLOR[u.type]||C.purple,padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{TYPE_LABEL[u.type]||u.type}</span>
                     <a href={u.url} target="_blank" rel="noopener noreferrer" style={{fontSize:isMobile?11:13,fontWeight:600,color:C.textMain,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",textDecoration:"none"}}>{u.title||u.url}</a>
+                    <button onClick={()=>copyUrl(u.url, u.id)} title="Copy URL" style={{background:"transparent",border:"none",cursor:"pointer",fontSize:isMobile?11:12,padding:"2px 4px",flexShrink:0,color:copiedUrlId===u.id?"#2e7d32":C.textMuted,fontWeight:700}}>{copiedUrlId===u.id?"✓":"📋"}</button>
                     <span style={{fontSize:10,color:C.textMuted,whiteSpace:"nowrap",flexShrink:0}}>{u.date}</span>
                   </div>
                 ))}
@@ -540,15 +566,15 @@ export default function App() {
                         <div>
                           <label style={lbl}>📝 Tiêu đề bài</label>
                           <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="Tên bài viết / video..."
-                            id="url-title-input"
-                            onBlur={e=>setUrlForm(f=>({...f,title:e.target.value}))}
+                            value={urlForm.title}
+                            onChange={e=>setUrlForm(f=>({...f,title:e.target.value}))}
                           />
                         </div>
                         <div>
                           <label style={lbl}>🔗 URL</label>
                           <input style={{...inp,padding:"8px 12px",fontSize:13}} placeholder="https://..."
-                            id="url-url-input"
-                            onBlur={e=>setUrlForm(f=>({...f,url:e.target.value}))}
+                            value={urlForm.url}
+                            onChange={e=>setUrlForm(f=>({...f,url:e.target.value}))}
                             onKeyDown={e=>{if(e.key==="Enter"){addUrl();}}}
                           />
                         </div>
@@ -579,6 +605,7 @@ export default function App() {
                             <span style={{fontSize:isMobile?9:10,fontWeight:700,color:C.white,background:TYPE_COLOR[u.type]||C.purple,padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{TYPE_LABEL[u.type]||u.type}</span>
                             <span style={{fontSize:isMobile?11:13,fontWeight:600,color:C.textMain,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{u.title||"—"}</span>
                             <a href={u.url} target="_blank" rel="noopener noreferrer" style={{fontSize:10,color:C.purpleMid,textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,border:`1px solid ${C.purpleMid}`,borderRadius:6,padding:"2px 7px",fontWeight:600}}>🔗</a>
+                            <button onClick={()=>copyUrl(u.url, u.id)} title="Copy URL" style={{background:"transparent",border:"none",cursor:"pointer",fontSize:isMobile?11:12,padding:"2px 4px",flexShrink:0,color:copiedUrlId===u.id?"#2e7d32":C.textMuted,fontWeight:700}}>{copiedUrlId===u.id?"✓":"📋"}</button>
                             <span style={{fontSize:10,color:C.textMuted,whiteSpace:"nowrap",flexShrink:0,display:isMobile?"none":"inline"}}>{u.date}</span>
                             <button onClick={()=>removeUrl(u.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:"#c62828",fontSize:18,padding:"0 2px",flexShrink:0,lineHeight:1}}>×</button>
                           </div>
@@ -890,9 +917,8 @@ export default function App() {
               <div style={{gridColumn:isMobile?"1/-1":"auto"}}>
                 <label style={lbl}>📝 Tên công việc *</label>
                 <input style={{...inp,padding:"9px 12px",fontSize:13}} placeholder="Tên công việc..."
-                  defaultValue={noteForm.title}
-                  onChange={e=>{ noteForm.title=e.target.value; }}
-                  onBlur={e=>setNoteForm(f=>({...f,title:e.target.value}))}
+                  value={noteForm.title}
+                  onChange={e=>setNoteForm(f=>({...f,title:e.target.value}))}
                   onKeyDown={e=>{if(e.key==="Enter")addNote();}}
                 />
               </div>
@@ -907,12 +933,10 @@ export default function App() {
                 <input type="date" style={{...inp,padding:"9px 12px",fontSize:13}} value={noteForm.date} onChange={e=>setNoteForm(f=>({...f,date:e.target.value}))}/>
               </div>
             </div>
-            <div style={{marginBottom:12}}>
-              <label style={lbl}>📄 Ghi chú thêm</label>
+            <div style={{marginBottom:12}}>                <label style={lbl}>📄 Ghi chú thêm</label>
               <textarea style={{...inp,padding:"9px 12px",fontSize:13,minHeight:72,resize:"vertical"}} placeholder="Chi tiết công việc, kết quả, ghi chú..."
-                defaultValue={noteForm.content}
-                onChange={e=>{ noteForm.content=e.target.value; }}
-                onBlur={e=>setNoteForm(f=>({...f,content:e.target.value}))}
+                value={noteForm.content}
+                onChange={e=>setNoteForm(f=>({...f,content:e.target.value}))}
               />
             </div>
             <Btn variant="primary" onClick={addNote}>+ Thêm công việc</Btn>
