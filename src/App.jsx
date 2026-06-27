@@ -230,6 +230,7 @@ export default function App() {
     apiSet("urls", urls);
   }, [urls]);
   const [showUrlPanel, setShowUrlPanel] = useState(false);
+  const [urlForm, setUrlForm] = useState({title:"",url:"",date:"",type:"post"});
   const [copiedUrlId, setCopiedUrlId] = useState(null);
 
   function copyUrl(url, id) {
