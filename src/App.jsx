@@ -154,8 +154,24 @@ export default function App() {
   }, []);
 
   const isMobile = useIsMobile();
-  const isAdmin = false;
+  const ADMIN_PASSWORD = "190891";
+  const [isAdmin, setIsAdmin] = useState(() => sessionStorage.getItem("gtt_admin") === "true");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  function handleLogoClick() {
+    if (isAdmin) return;
+    const pwd = prompt("🔐 Nhập mật khẩu admin:");
+    if (pwd === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      sessionStorage.setItem("gtt_admin", "true");
+    } else if (pwd !== null) {
+      alert("❌ Sai mật khẩu!");
+    }
+  }
+  function handleAdminLogout() {
+    setIsAdmin(false);
+    sessionStorage.removeItem("gtt_admin");
+  }
 
   const [data, setData] = useState(INITIAL_DATA);
   const [saveStatus, setSaveStatus] = useState("");
@@ -195,6 +211,7 @@ export default function App() {
     {id:"content",label:"Plan Content",icon:"✍️"},
     {id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},
     {id:"keyrank",label:"Từ Khóa",icon:"📊"},
+    ...(isAdmin ? [{id:"input",label:"Nhập liệu",icon:"✎"}] : []),
   ];
 
   const [tab, setTab] = useState("dashboard");
@@ -331,6 +348,19 @@ export default function App() {
 
   function goInput(platform) { setEditMonth(selMonth); setEditPlat(platform); setTab("input"); formRefs.current={}; }
 
+  function addNote() {
+    if(!noteForm.title.trim()) return;
+    const entry = {...noteForm, id:Date.now(), done:false, date:noteForm.date||new Date().toISOString().slice(0,10)};
+    setOtherNotes(prev => ({...prev, [noteMonth]: [...(prev[noteMonth]||[]), entry]}));
+    setNoteForm({title:"",category:noteForm.category,content:"",date:""});
+  }
+  function toggleNote(month, id) {
+    setOtherNotes(prev => ({...prev, [month]: (prev[month]||[]).map(n=>n.id===id?{...n,done:!n.done}:n)}));
+  }
+  function removeNote(month, id) {
+    setOtherNotes(prev => ({...prev, [month]: (prev[month]||[]).filter(n=>n.id!==id)}));
+  }
+
   // ── Shared Components ──
   const Card = ({children, style={}}) => (
     <div style={{background:C.cardBg,borderRadius:isMobile?12:16,border:`1px solid ${C.border}`,padding:isMobile?14:22,marginBottom:isMobile?12:18,boxShadow:"0 2px 12px #40123e0a",...style}}>{children}</div>
@@ -356,6 +386,9 @@ export default function App() {
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,paddingBottom:12,borderBottom:`1px solid ${C.border}`}}>
           <div style={{width:isMobile?36:42,height:isMobile?36:42,borderRadius:10,background:`${p.color}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?18:20,border:`1px solid ${p.color}25`,flexShrink:0}}>{p.icon}</div>
           <span style={{fontSize:isMobile?14:17,fontWeight:800,color:C.textMain}}>{p.label}</span>
+          {isAdmin&&(
+            <button onClick={()=>goInput(platform)} style={{marginLeft:"auto",padding:isMobile?"5px 10px":"6px 14px",borderRadius:8,border:`1px solid ${C.purpleMid}`,background:"transparent",color:C.purpleMid,fontSize:isMobile?11:12,fontWeight:700,cursor:"pointer",flexShrink:0}}>✎ Nhập</button>
+          )}
         </div>
         {/* Metrics grid */}
         <div className="plat-metrics" style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(fs.length,isMobile?2:5)},1fr)`,gap:isMobile?8:10}}>
@@ -571,6 +604,7 @@ export default function App() {
                     <div style={{fontSize:isMobile?11:13,fontWeight:700,color:act?C.purple:C.textSub}}>{ML[m]}</div>
                     <div style={{fontSize:9,color:cnt===7?"#2e7d32":cnt>0?"#e65100":C.textMuted,marginTop:2,fontWeight:600}}>{cnt}/7</div>
                   </button>
+                  {isAdmin&&<button onClick={()=>deleteMonth(m)} title="Xoá tháng này" style={{position:"absolute",top:-6,right:-6,width:18,height:18,borderRadius:"50%",border:"none",background:"#e53935",color:"#fff",fontSize:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,lineHeight:1}}>×</button>}
                 </div>
               );
             })}
@@ -848,7 +882,43 @@ export default function App() {
               );})}
             </div>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",marginTop:10,paddingTop:10,borderTop:`1px solid ${C.border}`}}>
-              <span style={{fontSize:11,color:C.textMuted,fontWeight:700,flexShrink:0}}>📅 Lọc ngày:</span>
+            {/* Add form — admin only */}
+        {isAdmin&&(
+          <Card>
+            <SecTitle>➕ Thêm công việc — {ML[noteMonth]}</SecTitle>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"2fr 1fr 1fr",gap:10,marginBottom:10}}>
+              <div style={{gridColumn:isMobile?"1/-1":"auto"}}>
+                <label style={lbl}>📝 Tên công việc *</label>
+                <input style={{...inp,padding:"9px 12px",fontSize:13}} placeholder="Tên công việc..."
+                  defaultValue={noteForm.title}
+                  onChange={e=>{ noteForm.title=e.target.value; }}
+                  onBlur={e=>setNoteForm(f=>({...f,title:e.target.value}))}
+                  onKeyDown={e=>{if(e.key==="Enter")addNote();}}
+                />
+              </div>
+              <div>
+                <label style={lbl}>🏷 Danh mục</label>
+                <select style={{...inp,padding:"9px 12px",fontSize:13,cursor:"pointer"}} value={noteForm.category} onChange={e=>setNoteForm(f=>({...f,category:e.target.value}))}>
+                  {NOTE_CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={lbl}>📅 Ngày</label>
+                <input type="date" style={{...inp,padding:"9px 12px",fontSize:13}} value={noteForm.date} onChange={e=>setNoteForm(f=>({...f,date:e.target.value}))}/>
+              </div>
+            </div>
+            <div style={{marginBottom:12}}>
+              <label style={lbl}>📄 Ghi chú thêm</label>
+              <textarea style={{...inp,padding:"9px 12px",fontSize:13,minHeight:72,resize:"vertical"}} placeholder="Chi tiết công việc, kết quả, ghi chú..."
+                defaultValue={noteForm.content}
+                onChange={e=>{ noteForm.content=e.target.value; }}
+                onBlur={e=>setNoteForm(f=>({...f,content:e.target.value}))}
+              />
+            </div>
+            <Btn variant="primary" onClick={addNote}>+ Thêm công việc</Btn>
+          </Card>
+        )}
+          <span style={{fontSize:11,color:C.textMuted,fontWeight:700,flexShrink:0}}>📅 Lọc ngày:</span>
               {[{id:"all",label:"Tất cả"},{id:"today",label:"Hôm nay"},{id:"thisweek",label:"7 ngày qua"}].map(f=>{
                 const act=noteDateFilter===f.id;
                 return <button key={f.id} onClick={()=>{setNoteDateFilter(f.id);setNoteDateFrom("");setNoteDateTo("");}} style={{padding:"5px 12px",borderRadius:20,border:`1px solid ${act?C.gold:"#dbdbdb"}`,cursor:"pointer",fontFamily:"inherit",fontWeight:700,fontSize:11,background:act?C.goldLight:"transparent",color:act?"#b07e00":C.textSub,whiteSpace:"nowrap",flexShrink:0}}>{f.label}</button>;
@@ -873,9 +943,9 @@ export default function App() {
             return (
               <div key={n.id} style={{background:n.done?C.offWhite:C.cardBg,borderRadius:14,border:`1px solid ${n.done?C.silver:C.border}`,padding:isMobile?"12px 14px":"14px 18px",boxShadow:n.done?"none":"0 2px 8px #40123e08",opacity:n.done?.75:1,transition:"all .2s"}}>
                 <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
-                  <div style={{width:22,height:22,borderRadius:6,border:`2px solid ${n.done?"#2e7d32":C.purpleMid}`,background:n.done?"#2e7d32":"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,marginTop:1,opacity:0.7}}>
+                  <button onClick={()=>isAdmin&&toggleNote(noteMonth,n.id)} style={{width:22,height:22,borderRadius:6,border:`2px solid ${n.done?"#2e7d32":C.purpleMid}`,background:n.done?"#2e7d32":"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,marginTop:1,cursor:isAdmin?"pointer":"default",opacity:isAdmin?1:0.7}}>
                     {n.done?"✓":""}
-                  </div>
+                  </button>
                   <div style={{flex:1,minWidth:0,overflow:"hidden"}}>
                     <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:n.content?6:0}}>
                       <span style={{fontSize:isMobile?12:14,fontWeight:700,color:n.done?C.textMuted:C.textMain,textDecoration:n.done?"line-through":"none"}}>{n.title}</span>
@@ -890,6 +960,7 @@ export default function App() {
                       )}
                     </div>}
                   </div>
+                  {isAdmin&&<button onClick={()=>removeNote(noteMonth,n.id)} style={{background:"transparent",border:"none",cursor:"pointer",color:C.textMuted,fontSize:18,padding:"0 2px",flexShrink:0,lineHeight:1}}>×</button>}
                 </div>
               </div>
             );
@@ -928,7 +999,7 @@ export default function App() {
 
           {/* Brand */}
           <div style={{display:"flex",alignItems:"center",gap:isMobile?10:14}}>
-            <div style={{width:isMobile?34:40,height:isMobile?34:40,borderRadius:10,background:`linear-gradient(135deg,${C.gold},${C.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?17:20,flexShrink:0,boxShadow:"0 2px 8px #eec27744"}}>🌲</div>
+            <div onClick={handleLogoClick} style={{width:isMobile?34:40,height:isMobile?34:40,borderRadius:10,background:`linear-gradient(135deg,${C.gold},${C.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?17:20,flexShrink:0,boxShadow:"0 2px 8px #eec27744",cursor:isAdmin?"default":"pointer",transition:"transform .15s",userSelect:"none"}} title={isAdmin?"🔑 Admin":"Click để đăng nhập admin"}>🌲</div>
             <div>
               <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1}}>Gỗ Thanh Thùy</div>
               {!isMobile&&<div style={{fontSize:10,color:`${C.gold}cc`,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Marketing Dashboard</div>}
@@ -942,6 +1013,13 @@ export default function App() {
             </div>
           )}
 
+          {/* Admin badge + Logout */}
+          {!isMobile&&isAdmin&&(
+            <div style={{display:"flex",alignItems:"center",gap:8,marginRight:12}}>
+              <span style={{fontSize:10,fontWeight:700,color:C.gold,background:"rgba(255,255,255,.12)",padding:"3px 10px",borderRadius:20,border:`1px solid ${C.gold}55`,whiteSpace:"nowrap"}}>👑 Admin</span>
+              <button onClick={handleAdminLogout} style={{padding:"5px 10px",borderRadius:8,border:`1px solid ${C.gold}66`,background:"transparent",color:`${C.gold}cc`,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>🔒 Thoát</button>
+            </div>
+          )}
           {/* Mobile hamburger */}
           {isMobile&&(
             <button onClick={()=>setMobileMenuOpen(!mobileMenuOpen)} style={{background:"transparent",border:"none",color:C.white,fontSize:22,cursor:"pointer",padding:4,lineHeight:1}}>
@@ -1012,12 +1090,13 @@ export default function App() {
           <div style={{fontSize:11,color:C.textMuted}}>
             {saveStatus==="saved"&&<span style={{marginRight:8,color:"#2e7d32",fontWeight:700}}>✓ Đã lưu</span>}
             © {new Date().getFullYear()} Gỗ Thanh Thùy
-            <span style={{marginLeft:8,background:C.purpleLight,color:C.purple,padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👁 Viewer</span>
+            {isAdmin?<span style={{marginLeft:8,background:"#e8f5e9",color:"#2e7d32",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👑 Admin</span>:<span style={{marginLeft:8,background:C.purpleLight,color:C.purple,padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👁 Viewer</span>}
           </div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
             <input ref={importRef} type="file" accept=".json" style={{display:"none"}} onChange={importData}/>
             <button onClick={()=>importRef.current.click()} style={{padding:"6px 14px",borderRadius:8,border:`1px solid ${C.purpleMid}`,background:"transparent",color:C.purpleMid,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>📂 Import</button>
             <button onClick={exportData} style={{padding:"6px 14px",borderRadius:8,border:"none",background:`linear-gradient(135deg,${C.purple},${C.purpleMid})`,color:C.white,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>💾 Export JSON</button>
+            {isAdmin&&<button onClick={handleAdminLogout} style={{padding:"6px 12px",borderRadius:8,border:`1px solid ${C.border}`,background:"transparent",color:C.textMuted,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>🔒 Thoát Admin</button>}
           </div>
         </div>
       </div>
