@@ -25,15 +25,17 @@ function posColor(p){
   return{bg:"#fee2e2",col:"#991b1b"};
 }
 
+function fmtPos(v){return v!=null&&!isNaN(v)?Number(v).toFixed(1):"—";}
+
 function PosBadge({pos}){
-  if(!pos)return<span style={{color:C.textMuted,fontSize:11}}>—</span>;
+  if(!pos&&pos!==0)return<span style={{color:C.textMuted,fontSize:11}}>—</span>;
   const{bg,col}=posColor(pos);
-  return<span style={{display:"inline-block",padding:"2px 8px",borderRadius:99,fontSize:11,fontWeight:800,background:bg,color:col}}>{pos}</span>;
+  return<span style={{display:"inline-block",padding:"2px 8px",borderRadius:99,fontSize:11,fontWeight:800,background:bg,color:col}}>{fmtPos(pos)}</span>;
 }
 
 function PosArrow({prev,curr}){
   if(!prev||!curr)return null;
-  const diff=prev-curr;
+  const diff=Math.round((prev-curr)*10)/10;
   if(diff===0)return<span style={{color:C.textMuted,fontSize:10}}>—</span>;
   if(diff>0)return<span style={{color:"#16a34a",fontSize:10,fontWeight:700}}>▲{diff}</span>;
   return<span style={{color:"#dc2626",fontSize:10,fontWeight:700}}>▼{Math.abs(diff)}</span>;
@@ -115,7 +117,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
   const posLast=store.keywords.map(k=>k.positions?.find(p=>p.date===lastDate)?.pos).filter(Boolean);
   const top3=posLast.filter(p=>p<=3).length;
   const top10=posLast.filter(p=>p<=10).length;
-  const avg=posLast.length?Math.round(posLast.reduce((a,b)=>a+b,0)/posLast.length):0;
+  const avg=posLast.length?Number((posLast.reduce((a,b)=>a+b,0)/posLast.length).toFixed(1)):0;
 
   // ── Keyword CRUD ──
   function openNewKw(){setKwForm({keyword:"",volume:"",notes:""});setEditKw("new");}
@@ -142,7 +144,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
     const next={...store,keywords:store.keywords.map(k=>({
       ...k,
       positions:[...(k.positions||[]).filter(p=>p.date!==addColDate),
-        {date:addColDate,pos:posInputs[k.id]||null}
+        {date:addColDate,pos:parseFloat(posInputs[k.id])||null}
       ]
     }))};
     save(next);
@@ -150,7 +152,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
     setPosInputs({});
   }
   function updatePosCell(kwId,date,val){
-    const pos=parseInt(val)||null;
+    const pos=parseFloat(val)||null;
     save({...store,keywords:store.keywords.map(k=>k.id!==kwId?k:{
       ...k,
       positions:[...(k.positions||[]).filter(p=>p.date!==date),
@@ -250,7 +252,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
                 {store.keywords.map(k=>(
                   <div key={k.id} style={{background:C.white,borderRadius:8,padding:"8px 10px",border:`1px solid ${C.border}`}}>
                     <div style={{fontSize:11,fontWeight:600,color:C.textMain,marginBottom:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{k.keyword}</div>
-                    <input type="number" min="1" max="200" placeholder="Vị trí..."
+                    <input type="number" min="1" max="200" step="0.1" placeholder="Vị trí..."
                       style={{...inp,padding:"5px 8px",fontSize:12}}
                       value={posInputs[k.id]||""}
                       onChange={e=>setPosInputs(p=>({...p,[k.id]:e.target.value}))}/>
@@ -300,9 +302,9 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
                           {allDates.map(d=>(
                             <td key={d} style={{padding:"6px 8px",textAlign:"center"}}>
                               {isAdmin?(
-                                <input type="number" min="1" max="200" placeholder="—"
-                                  defaultValue={posMap[d]||""}
-                                  style={{width:46,padding:"3px 4px",borderRadius:6,border:`1px solid ${C.border}`,textAlign:"center",fontSize:11,fontFamily:"inherit",outline:"none",background:posMap[d]?posColor(posMap[d]).bg:"transparent"}}
+                                <input type="number" min="1" max="200" step="0.1" placeholder="—"
+                                  defaultValue={posMap[d]!=null?posMap[d]:""}
+                                  style={{width:50,padding:"3px 4px",borderRadius:6,border:`1px solid ${C.border}`,textAlign:"center",fontSize:11,fontFamily:"inherit",outline:"none",background:posMap[d]?posColor(posMap[d]).bg:"transparent"}}
                                   onBlur={e=>updatePosCell(kw.id,d,e.target.value)}
                                   onFocus={e=>e.target.select()}
                                 />
@@ -351,7 +353,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
                       </div>
                       <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
                         <span style={{fontSize:11,color:C.textSub,fontWeight:600}}>Vị trí trung vị:</span>
-                        <PosBadge pos={parseInt(pg.medianPos)||null}/>
+                        <PosBadge pos={parseFloat(pg.medianPos)||null}/>
                         <span style={{fontSize:11,color:C.textMuted}}>{(pg.keywords||[]).length} từ khóa</span>
                       </div>
                     </div>
@@ -409,7 +411,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
               <div><label style={{fontSize:10,color:C.textSub,fontWeight:700,display:"block",marginBottom:4,textTransform:"uppercase"}}>URL *</label>
                 <input style={inp} placeholder="https://gothanhthuy.com/kien-thuc/go-cong-nghiep-la-gi/" value={pageForm.url} onChange={e=>setPageForm(f=>({...f,url:e.target.value}))}/></div>
               <div><label style={{fontSize:10,color:C.textSub,fontWeight:700,display:"block",marginBottom:4,textTransform:"uppercase"}}>Vị trí trung vị (Median Position)</label>
-                <input style={inp} type="number" min="1" max="200" placeholder="5" value={pageForm.medianPos} onChange={e=>setPageForm(f=>({...f,medianPos:e.target.value}))}/></div>
+                <input style={inp} type="number" min="1" max="200" step="0.1" placeholder="5" value={pageForm.medianPos} onChange={e=>setPageForm(f=>({...f,medianPos:e.target.value}))}/></div>
               <div><label style={{fontSize:10,color:C.textSub,fontWeight:700,display:"block",marginBottom:4,textTransform:"uppercase"}}>Từ khóa (mỗi dòng hoặc phân cách bằng dấu phẩy)</label>
                 <textarea style={{...inp,minHeight:100,resize:"vertical"}} placeholder={"gỗ công nghiệp là gì\nván MDF là gì\ngiá gỗ công nghiệp"} value={pageForm.keywords} onChange={e=>setPageForm(f=>({...f,keywords:e.target.value}))}/></div>
             </div>
