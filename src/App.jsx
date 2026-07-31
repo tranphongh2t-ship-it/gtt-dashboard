@@ -207,7 +207,7 @@ export default function App() {
     {id:"dashboard",label:"Dashboard",icon:"▦"},
     {id:"charts",label:"Biểu đồ",icon:"↗"},
     {id:"compare",label:"So sánh",icon:"⇄"},
-    {id:"other",label:"Công Việc Khác",icon:"📋"},
+    {id:"other",label:"Công Việc",icon:"📋"},
     {id:"content",label:"Plan Content",icon:"✍️"},
     {id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},
     {id:"keyrank",label:"Từ Khóa",icon:"📊"},
@@ -872,6 +872,40 @@ export default function App() {
           </div>
         </Card>
 
+        {/* Add form — admin only; always visible so the first task of a new month can be added */}
+        {isAdmin&&(
+          <Card>
+            <SecTitle>➕ Thêm công việc — {ML[noteMonth]}</SecTitle>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"2fr 1fr 1fr",gap:10,marginBottom:10}}>
+              <div style={{gridColumn:isMobile?"1/-1":"auto"}}>
+                <label style={lbl}>📝 Tên công việc *</label>
+                <input style={{...inp,padding:"9px 12px",fontSize:13}} placeholder="Tên công việc..."
+                  value={noteForm.title}
+                  onChange={e=>setNoteForm(f=>({...f,title:e.target.value}))}
+                  onKeyDown={e=>{if(e.key==="Enter")addNote();}}
+                />
+              </div>
+              <div>
+                <label style={lbl}>🏷 Danh mục</label>
+                <select style={{...inp,padding:"9px 12px",fontSize:13,cursor:"pointer"}} value={noteForm.category} onChange={e=>setNoteForm(f=>({...f,category:e.target.value}))}>
+                  {NOTE_CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={lbl}>📅 Ngày</label>
+                <input type="date" style={{...inp,padding:"9px 12px",fontSize:13}} value={noteForm.date} onChange={e=>setNoteForm(f=>({...f,date:e.target.value}))}/>
+              </div>
+            </div>
+            <div style={{marginBottom:12}}>                <label style={lbl}>📄 Ghi chú thêm</label>
+              <textarea style={{...inp,padding:"9px 12px",fontSize:13,minHeight:72,resize:"vertical"}} placeholder="Chi tiết công việc, kết quả, ghi chú..."
+                value={noteForm.content}
+                onChange={e=>setNoteForm(f=>({...f,content:e.target.value}))}
+              />
+            </div>
+            <Btn variant="primary" onClick={addNote}>+ Thêm công việc</Btn>
+          </Card>
+        )}
+
         {monthNotes.length>0&&(
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:isMobile?12:18}}>
             {[
@@ -910,40 +944,7 @@ export default function App() {
               );})}
             </div>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",marginTop:10,paddingTop:10,borderTop:`1px solid ${C.border}`}}>
-            {/* Add form — admin only */}
-        {isAdmin&&(
-          <Card>
-            <SecTitle>➕ Thêm công việc — {ML[noteMonth]}</SecTitle>
-            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"2fr 1fr 1fr",gap:10,marginBottom:10}}>
-              <div style={{gridColumn:isMobile?"1/-1":"auto"}}>
-                <label style={lbl}>📝 Tên công việc *</label>
-                <input style={{...inp,padding:"9px 12px",fontSize:13}} placeholder="Tên công việc..."
-                  value={noteForm.title}
-                  onChange={e=>setNoteForm(f=>({...f,title:e.target.value}))}
-                  onKeyDown={e=>{if(e.key==="Enter")addNote();}}
-                />
-              </div>
-              <div>
-                <label style={lbl}>🏷 Danh mục</label>
-                <select style={{...inp,padding:"9px 12px",fontSize:13,cursor:"pointer"}} value={noteForm.category} onChange={e=>setNoteForm(f=>({...f,category:e.target.value}))}>
-                  {NOTE_CATS.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={lbl}>📅 Ngày</label>
-                <input type="date" style={{...inp,padding:"9px 12px",fontSize:13}} value={noteForm.date} onChange={e=>setNoteForm(f=>({...f,date:e.target.value}))}/>
-              </div>
-            </div>
-            <div style={{marginBottom:12}}>                <label style={lbl}>📄 Ghi chú thêm</label>
-              <textarea style={{...inp,padding:"9px 12px",fontSize:13,minHeight:72,resize:"vertical"}} placeholder="Chi tiết công việc, kết quả, ghi chú..."
-                value={noteForm.content}
-                onChange={e=>setNoteForm(f=>({...f,content:e.target.value}))}
-              />
-            </div>
-            <Btn variant="primary" onClick={addNote}>+ Thêm công việc</Btn>
-          </Card>
-        )}
-          <span style={{fontSize:11,color:C.textMuted,fontWeight:700,flexShrink:0}}>📅 Lọc ngày:</span>
+            <span style={{fontSize:11,color:C.textMuted,fontWeight:700,flexShrink:0}}>📅 Lọc ngày:</span>
               {[{id:"all",label:"Tất cả"},{id:"today",label:"Hôm nay"},{id:"thisweek",label:"7 ngày qua"}].map(f=>{
                 const act=noteDateFilter===f.id;
                 return <button key={f.id} onClick={()=>{setNoteDateFilter(f.id);setNoteDateFrom("");setNoteDateTo("");}} style={{padding:"5px 12px",borderRadius:20,border:`1px solid ${act?C.gold:"#dbdbdb"}`,cursor:"pointer",fontFamily:"inherit",fontWeight:700,fontSize:11,background:act?C.goldLight:"transparent",color:act?"#b07e00":C.textSub,whiteSpace:"nowrap",flexShrink:0}}>{f.label}</button>;
