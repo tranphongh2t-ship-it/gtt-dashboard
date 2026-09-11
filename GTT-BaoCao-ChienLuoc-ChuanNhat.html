@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Chiến lược Content</title>
+<style>
+  :root{
+    --wood:#8a5a3b; --wood-dark:#5e3b24; --cream:#faf6f0; --ink:#2b241d;
+    --line:#e6ddd0; --accent:#2f6b4f; --accent2:#b5502e; --muted:#7a6f5e;
+    --warn-bg:#fdf1ea; --ok-bg:#eef6f0; --crit:#a83232; --crit-bg:#fbe9e7;
+  }
+  *{box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--cream);color:var(--ink);margin:0;line-height:1.6}
+  .wrap{max-width:1140px;margin:0 auto;padding:32px 24px 90px}
+  header.top{background:linear-gradient(135deg,var(--wood-dark),var(--wood));color:#fff;padding:40px 24px;margin-bottom:8px}
+  header.top .wrap{padding:0}
+  header.top h1{margin:0 0 8px;font-size:25px}
+  header.top p{margin:0;opacity:.92;font-size:13.5px}
+  h2{color:var(--wood-dark);border-bottom:3px solid var(--wood);padding-bottom:8px;margin-top:52px;font-size:21px}
+  h3{color:var(--accent2);margin-top:26px;font-size:16.5px}
+  h4{margin-top:18px;font-size:14.5px}
+  table{border-collapse:collapse;width:100%;margin:14px 0 22px;font-size:13px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--wood-dark);color:#fff;font-weight:600}
+  tr:nth-child(even) td{background:#fbf8f3}
+  .callout{background:#fff;border-left:5px solid var(--accent);padding:14px 18px;margin:16px 0;border-radius:4px}
+  .callout.warn{border-left-color:var(--accent2);background:var(--warn-bg)}
+  .callout.crit{border-left-color:var(--crit);background:var(--crit-bg)}
+  .callout.ok{border-left-color:var(--accent);background:var(--ok-bg)}
+  .tag{display:inline-block;color:#fff;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:600;margin-right:5px;white-space:nowrap}
+  .tag.push{background:var(--accent)}
+  .tag.proof{background:var(--wood)}
+  .tag.hold{background:#9a8f7a}
+  .tag.watch{background:var(--accent2)}
+  .tag.stop{background:var(--crit)}
+  .toc{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin-top:20px}
+  .toc a{color:var(--wood-dark);text-decoration:none;font-size:13px}
+  .weekhead{background:var(--wood-dark);color:#fff;padding:8px 12px;border-radius:6px 6px 0 0;font-size:14px;margin-top:26px}
+  code{background:#f0e9de;padding:1px 5px;border-radius:3px;font-size:12px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+  .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;text-align:center}
+  .kpi .num{font-size:22px;font-weight:700;color:var(--accent2)}
+  .kpi .lbl{font-size:11.5px;color:var(--muted)}
+  .lens{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+  .lens b{color:var(--wood-dark);font-size:12.5px;display:block;margin-bottom:5px}
+  .lens p{font-size:11.8px;margin:0;color:var(--muted)}
+  footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+  .cover-ok{color:var(--accent);font-weight:700}
+  .cover-warn{color:var(--accent2);font-weight:700}
+  .cover-crit{color:var(--crit);font-weight:700}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <h1>CHIẾN LƯỢC CONTENT</h1>
+  <p>Kết hợp: dữ liệu bán hàng cả năm (01/01–11/09/2026) + tồn kho thật theo kho + xu hướng thị trường, mùa vụ, khí hậu, màu sắc nội thất & mạng xã hội 2026. Cập nhật: 10/09/2026</p>
+</div></header>
+
+<div class="wrap">
+
+<div class="toc">
+<b>Mục lục</b>
+<ol>
+<li><a href="#s0">Phân tích tổng quan dữ liệu</a></li>
+<li><a href="#s1">Bối cảnh vĩ mô: thị trường, mùa vụ, khí hậu (khung năm)</a></li>
+<li><a href="#s2">Xu hướng màu sắc & phong cách sử dụng nội thất 2026</a></li>
+<li><a href="#s3">Xu hướng nội dung mạng xã hội 2026</a></li>
+<li><a href="#s4">Dữ liệu bán hàng cả năm theo nhóm & SKU (01/01–11/09/2026)</a></li>
+<li><a href="#s5">Dữ liệu tồn kho thật - phát hiện quan trọng nhất của báo cáo này</a></li>
+<li><a href="#s6">Ma trận quyết định cuối cùng (6 lăng kính)</a></li>
+<li><a href="#s7">Kế hoạch content 30 ngày - bản chuẩn nhất</a></li>
+</ol>
+</div>
+
+<h2 id="s0">0. TỔNG QUAN DỮ LIỆU</h2>
+<div class="callout crit">
+<b>5 thay đổi quan trọng nhất rút ra khi có đủ dữ liệu thật (bán hàng cả năm + tồn kho):</b>
+<ol>
+<li><b>Durabo không nên là trọng tâm đẩy mạnh</b> như 2 bản trước đề xuất - dữ liệu tồn kho cho thấy đây là <b>nhóm bị thiếu hàng hệ thống</b> (chỉ 5,2 tuần tồn kho trung bình, bằng 1/3 so với Kháng ẩm). Nhiều mã Durabo bán chạy nhất (388 WN, 682 WN, 4030 WG, BH Tím) đang <b>tồn kho = 0</b>. Đẩy content vào đây sẽ tạo cầu không thể đáp ứng.</li>
+<li><b>Mã 209 SN — một trong các mã "mid-tier" được đề xuất đẩy mạnh ở báo cáo trước — thực tế đã hết hàng (0 tồn kho)</b>. Phải loại khỏi mọi kế hoạch content cho đến khi có hàng nhập lại.</li>
+<li><b>Nhóm Kháng ẩm nói chung an toàn để đẩy mạnh</b> — tồn kho trung bình 13,8 tuần, hầu hết mã top-seller có 2,4–6,7 tuần tồn kho, mức bình thường theo tốc độ quay vòng của ngành này (không phải dấu hiệu rủi ro).</li>
+<li><b>Mã có tồn kho tốt nhất trong nhóm bán chạy: 01 G (6,7 tuần)</b> — đây là ứng viên "đẩy mạnh an toàn nhất" theo đúng nghĩa, nên được ưu tiên hơn cả 388 SN/611 SN trong các chiến dịch có ngân sách quảng cáo trả phí.</li>
+<li><b>Xu hướng màu nội thất 2026 (tông ấm, be/kem/latte, xám trung tính, thiết kế "tối giản ấm áp") khớp trực tiếp với các mã đang bán tốt và còn tồn kho khỏe</b> (KEM, LATTE, CHÌ) — đây là điểm củng cố thêm cho việc chọn đúng mã để làm nội dung, không chỉ dựa vào doanh số.</li>
+</ol>
+</div>
+
+<h2 id="s1">1. BỐI CẢNH VĨ MÔ: THỊ TRƯỜNG, MÙA VỤ, KHÍ HẬU</h2>
+<p>Ba yếu tố chi phối chu kỳ mua hàng B2B của Thanh Thùy (khách đặt vật liệu đi trước tiêu dùng thành phẩm 2–4 tháng):</p>
+<ul>
+<li><b>Chu kỳ Tết Nguyên Đán:</b> cuối năm tiêu thụ đồ gỗ nhiều nhất; ngay sau Tết là "thời điểm vàng" thi công. Tết 2027 rơi vào đầu tháng 2/2027 — hiện còn ~5 tháng, đúng cửa sổ gom hàng sỉ trước cao điểm.</li>
+<li><b>Mùa mưa – mùa khô miền Nam:</b> mùa mưa (~T5–T10) đẩy nhu cầu vật liệu kháng ẩm/chống nước — đã được xác nhận bằng chính dữ liệu bán hàng (tỷ trọng Kháng ẩm tăng dần từ tháng 7 sang tháng 9). Mùa khô (~T11–T4) là cao điểm thi công thực địa.</li>
+<li><b>Lịch nghỉ lễ & năm học:</b> Trung Thu (25/9/2026), khai giảng đầu tháng 9, Quốc khánh 2/9 — ảnh hưởng nhịp độ đăng bài nhưng không phải trục nội dung chính.</li>
+</ul>
+
+<h2 id="s2">2. XU HƯỚNG MÀU SẮC & PHONG CÁCH SỬ DỤNG NỘI THẤT 2026</h2>
+<p>Tổng hợp từ các báo cáo xu hướng thiết kế nội thất 2026 (trong nước và quốc tế):</p>
+<div class="grid3">
+<div class="lens"><b>Tông màu chủ đạo</b><p>Tông ấm chiếm ưu thế: be/kem, nâu đất, be nhạt, "warm neutrals" thay thế các tông lạnh/trắng tinh trước đây. Xám/taupe trung tính vẫn phổ biến nhưng theo hướng "ấm" hơn là xám lạnh.</p></div>
+<div class="lens"><b>Phong cách nổi bật</b><p>"Tối giản ấm áp" (warm minimalism), Japandi (thiền Nhật gặp công năng Scandinavia), thiết kế biophilic (vật liệu tự nhiên, gỗ), vật liệu bền vững — tất cả đều ưu tiên bề mặt vân gỗ/tông đất hơn là màu công nghiệp bóng bẩy.</p></div>
+<div class="lens"><b>Ý nghĩa cho Thanh Thùy</b><p>Đây chính là lý do các mã <b>KEM, LATTE, CHÌ</b> (tông be/kem/xám trung tính ấm) phù hợp xu hướng 2026 — và may mắn đây cũng là các mã đang có tồn kho khỏe (2,6–4 tuần), không xung đột giữa "nên đẩy vì hợp xu hướng" và "có hàng để bán".</p></div>
+</div>
+<div class="callout">Không gian được mô tả như nơi "chữa lành", mang dấu ấn cá nhân — nội dung nên nhấn vào cảm giác ấm cúng, tự nhiên của bề mặt vân gỗ/tông đất, thay vì chỉ nói về thông số kỹ thuật kháng ẩm.</div>
+
+<h2 id="s3">3. XU HƯỚNG NỘI DUNG MẠNG XÃ HỘI 2026</h2>
+<div class="callout ok">
+<b>Xu hướng chung 2026:</b> Video ngắn (Reels/TikTok/Facebook Live) tiếp tục vượt trội so với bài đăng tĩnh được chăm chút quá mức — nội dung "nhanh, cá nhân hoá, dễ tương tác" đang được các nền tảng ưu tiên phân phối hơn nội dung quảng cáo bóng bẩy. Với ngành xây dựng/vật liệu, nội dung thật (hậu trường, quy trình, công trình thực tế) đang tạo được độ tin cậy tốt hơn nội dung dàn dựng.<br><br>
+<b>Khớp với dữ liệu riêng của Thanh Thùy:</b> Fanpage hiện có Reels đạt 668–1.6K lượt tương tác/video — cao hơn hẳn bài text/ảnh tĩnh. Điều này củng cố việc ưu tiên định dạng Reels/video ngắn cho các ngày "hero product" trong kế hoạch, thay vì chỉ dùng ảnh tĩnh.
+</div>
+
+<h2 id="s4">4. DỮ LIỆU BÁN HÀNG CẢ NĂM THEO NHÓM & SKU (01/01–11/09/2026)</h2>
+<div class="grid5">
+<div class="kpi"><div class="num">203,8 tỷ</div><div class="lbl">Tổng doanh thu thuần cả năm</div></div>
+<div class="kpi"><div class="num">70,8%</div><div class="lbl">Kháng ẩm</div></div>
+<div class="kpi"><div class="num">16,8%</div><div class="lbl">Thường</div></div>
+<div class="kpi"><div class="num">6,9%</div><div class="lbl">Ván Nhựa Durabo</div></div>
+<div class="kpi"><div class="num">5,5%</div><div class="lbl">Chỉ nẹp</div></div>
+</div>
+<h3>4.1. Top 14 mã Kháng ẩm bán chạy nhất cả năm</h3>
+<table>
+<tr><th>#</th><th>Mã hàng</th><th>Doanh số (VNĐ)</th><th>Số lượng (tấm)</th></tr>
+<tr><td>1</td><td><code>ME17LMR388SN2DW</code> (388 SN)</td><td>3.880.277.107</td><td>10.479</td></tr>
+<tr><td>2</td><td><code>ME17LMR01SH2DW</code> (01 SH)</td><td>3.572.089.442</td><td>9.248</td></tr>
+<tr><td>3</td><td><code>ME17LMRCHIT2KG</code> (CHÌ T)</td><td>2.237.443.559</td><td>5.819</td></tr>
+<tr><td>4</td><td><code>ME17LMR611SN2DW</code> (611 SN)</td><td>2.175.111.220</td><td>5.985</td></tr>
+<tr><td>5</td><td><code>ME17LMR203T2DW</code> (203 T)</td><td>1.741.796.659</td><td>4.729</td></tr>
+<tr><td>6</td><td><code>ME17LMR389T2DW</code> (389 T)</td><td>1.543.157.664</td><td>4.233</td></tr>
+<tr><td>7</td><td><code>ME17LMRLATTET2DW</code> (LATTE T)</td><td>1.329.349.886</td><td>2.998</td></tr>
+<tr><td>8</td><td><code>ME17LMRKEMSH2DW</code> (KEM SH)</td><td>1.257.599.760</td><td>2.812</td></tr>
+<tr><td>9</td><td><code>ME17LMR682MW2DW</code> (682 MW)</td><td>1.217.220.271</td><td>2.917</td></tr>
+<tr><td>10</td><td><code>ME17LMRKEMT2DW</code> (KEM T)</td><td>1.115.887.023</td><td>2.519</td></tr>
+<tr><td>11</td><td><code>ME17LMR104SH2DW</code> (104 SH)</td><td>1.071.212.604</td><td>2.258</td></tr>
+<tr><td>12</td><td><code>ME17LMR01T2DW</code> (01 T)</td><td>1.068.664.684</td><td>2.796</td></tr>
+<tr><td>13</td><td><code>ME17LMR503MM2DW</code> (503 MM)</td><td>1.035.964.347</td><td>2.806</td></tr>
+<tr><td>14</td><td><code>ME17LMR209SN2DW</code> (209 SN)</td><td>829.483.250</td><td>2.358</td></tr>
+</table>
+<p style="font-size:12.5px;color:var(--muted)">* Cột tồn kho được ghép trực tiếp với bảng này ở Mục 5 để tránh phải tra chéo 2 bảng.</p>
+
+<h2 id="s5">5. DỮ LIỆU TỒN KHO THẬT — PHÁT HIỆN QUAN TRỌNG NHẤT</h2>
+<h3>5.1. Tồn kho trung bình theo nhóm (tính theo số tuần bán hết với tốc độ hiện tại)</h3>
+<table>
+<tr><th>Nhóm</th><th>Tổng tồn kho (tấm/cuộn)</th><th>Tốc độ bán/tuần</th><th>Số tuần tồn kho</th><th>Đánh giá</th></tr>
+<tr><td>Thường (không kháng ẩm)</td><td>63.705</td><td>2.420</td><td class="cover-ok">26,3 tuần</td><td>Rất dồi dào</td></tr>
+<tr><td>Chỉ nẹp</td><td>34.995</td><td>1.963</td><td class="cover-ok">17,8 tuần</td><td>Dồi dào</td></tr>
+<tr><td><b>Kháng ẩm</b></td><td>150.180</td><td>10.865</td><td class="cover-ok">13,8 tuần</td><td>An toàn để đẩy mạnh</td></tr>
+<tr><td><b>Ván Nhựa Durabo</b></td><td>2.398</td><td>457</td><td class="cover-crit">5,2 tuần</td><td><b>Thiếu hàng hệ thống — không nên đẩy mạnh content</b></td></tr>
+</table>
+
+<h3>5.2. Top 14 mã Kháng ẩm — doanh số kèm tồn kho thật (tuần)</h3>
+<table>
+<tr><th>Mã</th><th>Doanh số cả năm</th><th>Tồn kho hiện tại (tấm)</th><th>Số tuần tồn kho</th><th>Kết luận</th></tr>
+<tr><td>388 SN</td><td>3,88 tỷ</td><td>862</td><td class="cover-ok">3,0</td><td>Bình thường — an toàn dùng làm bằng chứng</td></tr>
+<tr><td>01 SH</td><td>3,57 tỷ</td><td>684</td><td class="cover-ok">2,7</td><td>Bình thường</td></tr>
+<tr><td>CHÌ T</td><td>2,24 tỷ</td><td>646</td><td class="cover-ok">4,0</td><td>Tốt — hợp xu hướng xám trung tính ấm</td></tr>
+<tr><td>611 SN</td><td>2,18 tỷ</td><td>685</td><td class="cover-ok">4,2</td><td>Tốt</td></tr>
+<tr><td>203 T</td><td>1,74 tỷ</td><td>319</td><td class="cover-ok">2,4</td><td>Bình thường</td></tr>
+<tr><td>389 T</td><td>1,54 tỷ</td><td>287</td><td class="cover-ok">2,5</td><td>Bình thường</td></tr>
+<tr><td>LATTE T</td><td>1,33 tỷ</td><td>214</td><td class="cover-ok">2,6</td><td>Bình thường — hợp xu hướng tông be ấm 2026</td></tr>
+<tr><td>KEM SH</td><td>1,26 tỷ</td><td>292</td><td class="cover-ok">3,8</td><td>Tốt — hợp xu hướng tông kem/be 2026</td></tr>
+<tr><td>682 MW</td><td>1,22 tỷ</td><td>307</td><td class="cover-ok">3,8</td><td>Tốt</td></tr>
+<tr><td>KEM T</td><td>1,12 tỷ</td><td>181</td><td class="cover-ok">2,6</td><td>Bình thường — hợp xu hướng</td></tr>
+<tr><td>104 SH</td><td>1,07 tỷ</td><td>243</td><td class="cover-ok">3,9</td><td>Tốt</td></tr>
+<tr><td>01 T</td><td>1,07 tỷ</td><td>203</td><td class="cover-ok">2,6</td><td>Bình thường</td></tr>
+<tr><td>503 MM</td><td>1,04 tỷ</td><td>279</td><td class="cover-ok">3,6</td><td>Tốt</td></tr>
+<tr><td><b>209 SN</b></td><td>0,83 tỷ</td><td><b>0</b></td><td class="cover-crit">0,0</td><td><span class="tag stop">DỪNG</span> Hết hàng — loại khỏi mọi content</td></tr>
+</table>
+<div class="callout ok"><b>01 G</b> (mã ngoài top 14 theo doanh số nhưng đáng chú ý): tồn kho <b>6,7 tuần</b> — cao nhất trong toàn bộ nhóm kháng ẩm bán chạy. Đây là mã "an toàn nhất" để dồn ngân sách quảng cáo trả phí nếu muốn đẩy mạnh mà không lo hết hàng giữa chiến dịch.</div>
+
+<h3>5.3. Ván Nhựa Durabo — vì sao KHÔNG nên làm trọng tâm đẩy tháng này</h3>
+<table>
+<tr><th>Mã</th><th>Doanh số cả năm</th><th>Tồn kho hiện tại</th><th>Số tuần tồn</th><th>Trạng thái</th></tr>
+<tr><td>Durabo MEL 388 WN (2 mặt)</td><td>857 triệu</td><td>32</td><td class="cover-crit">1,4</td><td><span class="tag watch">RẤT SÁT</span></td></tr>
+<tr><td>Durabo One Laminate LE 204 T</td><td>680 triệu</td><td>16</td><td class="cover-crit">0,9</td><td><span class="tag watch">RẤT SÁT</span></td></tr>
+<tr><td>Durabo BH Tím (NT17061M)</td><td>653 triệu</td><td><b>0</b></td><td class="cover-crit">0,0</td><td><span class="tag stop">HẾT HÀNG</span></td></tr>
+<tr><td>Durabo MEL 682 WN</td><td>227 triệu</td><td><b>0</b></td><td class="cover-crit">0,0</td><td><span class="tag stop">HẾT HÀNG</span></td></tr>
+<tr><td>Durabo MEL 4030 WG</td><td>217 triệu</td><td><b>0</b></td><td class="cover-crit">0,0</td><td><span class="tag stop">HẾT HÀNG</span></td></tr>
+<tr><td>Durabo MEL 388 WN (bản 0.55g, mã ES)</td><td>386 triệu</td><td>90</td><td class="cover-ok">7,9</td><td><span class="tag push">CÒN HÀNG TỐT</span></td></tr>
+<tr><td>Durabo One Laminate LE 388 T</td><td>269 triệu</td><td>61</td><td class="cover-ok">9,1</td><td><span class="tag push">CÒN HÀNG TỐT</span></td></tr>
+<tr><td>Durabo MEL 503 WN</td><td>201 triệu</td><td>60</td><td class="cover-ok">11,6</td><td><span class="tag push">CÒN HÀNG TỐT</span></td></tr>
+</table>
+<div class="callout crit">
+<b>Kết luận:</b> Không nên quảng bá "Durabo" như một nhóm chung chung — 5/8 mã bán chạy nhất của nhóm này đang hết hàng hoặc gần hết (dưới 1,5 tuần). Việc doanh số Durabo chỉ chiếm 6,9% nhiều khả năng <b>không phải vì nhu cầu thấp, mà vì nguồn cung không đáp ứng đủ</b> — đây là vấn đề kho vận/nhập hàng cần báo cáo lên ban lãnh đạo, không phải vấn đề marketing có thể giải quyết bằng cách đẩy thêm content. Nếu vẫn muốn nhắc đến Durabo, chỉ nên nhắc đến 3 mã còn hàng tốt (388 WN bản ES, 388 T LE, 503 WN), không nhắc đến các mã đã hết hàng.
+</div>
+
+<h2 id="s6">6. MA TRẬN QUYẾT ĐỊNH CUỐI CÙNG (6 LĂNG KÍNH)</h2>
+<table>
+<tr><th>Nhóm/mã</th><th>Thị trường</th><th>Mùa vụ</th><th>Khách hàng</th><th>Kho vận (thật)</th><th>Xu hướng màu 2026</th><th>Vai trò content</th></tr>
+<tr>
+<td><b>388 SN, 611 SN, 01 SH</b></td>
+<td>Đã bão hòa nhận biết</td>
+<td>Cầu ổn định quanh năm, không riêng mùa mưa</td>
+<td>Khách quen, tự đặt</td>
+<td class="cover-ok">2,7–4,2 tuần — an toàn</td>
+<td>Trung tính, không đặc biệt nổi bật xu hướng</td>
+<td><span class="tag proof">BẰNG CHỨNG</span> — mở màn ngắn, không kéo dài</td>
+</tr>
+<tr>
+<td><b>CHÌ T, LATTE T, KEM SH/T</b></td>
+<td>Còn dư địa nhận biết</td>
+<td>Phù hợp cả mùa mưa lẫn xu hướng chung</td>
+<td>Có thể mở rộng khách mới quan tâm xu hướng</td>
+<td class="cover-ok">2,6–4,0 tuần — an toàn</td>
+<td><b>Khớp trực tiếp xu hướng tông ấm/be/xám trung tính 2026</b></td>
+<td><span class="tag push">TRỌNG TÂM ĐẨY CHÍNH</span> — hội tụ đủ cả doanh số, tồn kho, xu hướng</td>
+</tr>
+<tr>
+<td><b>01 G</b></td>
+<td>Chưa phải hero nhưng dư địa tốt</td>
+<td>Trung lập theo mùa</td>
+<td>Chưa khai thác nhiều</td>
+<td class="cover-ok">6,7 tuần — tốt nhất nhóm</td>
+<td>Cần kiểm tra thêm</td>
+<td><span class="tag push">ƯU TIÊN CHO QUẢNG CÁO TRẢ PHÍ</span> — an toàn nhất nếu tăng ngân sách</td>
+</tr>
+<tr>
+<td><b>209 SN</b></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td class="cover-crit">0 tuần — hết hàng</td>
+<td>—</td>
+<td><span class="tag stop">DỪNG HOÀN TOÀN</span></td>
+</tr>
+<tr>
+<td><b>Durabo (388 WN, 204 T, BH Tím, 682 WN, 4030 WG)</b></td>
+<td>Nhu cầu có thể cao hơn doanh số ghi nhận (do thiếu hàng)</td>
+<td>Khớp thông điệp mùa mưa nhưng không giao được hàng</td>
+<td>Rủi ro làm khách thất vọng nếu hỏi mà không có hàng</td>
+<td class="cover-crit">0–1,4 tuần — thiếu hàng hệ thống</td>
+<td>Khác biệt, ít cạnh tranh giá</td>
+<td><span class="tag stop">TẠM DỪNG ĐẨY</span> — báo cáo kho vận trước, chờ nhập hàng</td>
+</tr>
+<tr>
+<td><b>Durabo (388 WN-ES, 388 T LE, 503 WN)</b></td>
+<td>Dư địa tăng trưởng thật</td>
+<td>Khớp mùa mưa</td>
+<td>Có thể mở khách mới</td>
+<td class="cover-ok">7,9–11,6 tuần — tốt</td>
+<td>Phù hợp</td>
+<td><span class="tag push">TRỌNG TÂM ĐẨY PHỤ</span> — chỉ 3 mã này, không nhắc Durabo chung chung</td>
+</tr>
+</table>
+
+<h2 id="s7">7. KẾ HOẠCH CONTENT 30 NGÀY — BẢN CHUẨN NHẤT (09/09–08/10/2026)</h2>
+<p><i>Đã tích hợp toàn bộ dữ liệu: bán hàng cả năm, tồn kho thật, xu hướng màu/mạng xã hội 2026. Fanpage 1 bài/ngày (ưu tiên Reels theo đúng xu hướng 2026); Website 3 bài/tuần. Trung Thu: Thứ Sáu 25/9/2026.</i></p>
+
+<div class="weekhead">TUẦN 1 (9–15/9) — Mở màn bằng bằng chứng (388 SN/611 SN/01 SH), KHÔNG kéo dài</div>
+<table>
+<tr><th>Ngày</th><th>Thứ</th><th>Kênh</th><th>Nội dung</th><th>Sản phẩm</th><th>Vai trò & lý do (đã kiểm tra tồn kho)</th></tr>
+<tr><td>09/9</td><td>Tư</td><td>Web+FB</td><td>Pillar: "70% doanh số Thanh Thùy đến từ ván kháng ẩm — vì sao khách vẫn chọn dù mùa nào?"</td><td>Kháng ẩm (tổng quan)</td><td><span class="tag proof">Bằng chứng</span> — dùng số liệu cả năm (70,8%) thay vì chỉ 3 tháng, mạnh hơn</td></tr>
+<tr><td>10/9</td><td>Năm</td><td>FB (Reel)</td><td>Reel "khách đang chọn gì" — nhắc nhanh 388 SN/611 SN</td><td>388 SN, 611 SN</td><td>Tồn kho 3,0 và 4,2 tuần — đủ an toàn cho 1 reel ngắn, không mở rộng thêm</td></tr>
+<tr><td>11/9</td><td>Sáu</td><td>FB</td><td>Ảnh + review khách hàng thật</td><td>Thương hiệu chung</td><td>Không gắn mã cụ thể — tận dụng review có sẵn</td></tr>
+<tr><td>12/9</td><td>Bảy</td><td>FB (Reel)</td><td>Reel "3 tông màu đang dẫn đầu xu hướng nội thất 2026: be, kem, xám ấm" — giới thiệu CHÌ T, LATTE T, KEM SH/T</td><td>CHÌ T, LATTE T, KEM SH, KEM T</td><td><span class="tag push">Bắt đầu trọng tâm đẩy chính</span> — đúng nhóm hội tụ cả doanh số tốt, tồn kho khỏe (2,6–4,0 tuần), và khớp xu hướng màu 2026</td></tr>
+<tr><td>13/9</td><td>CN</td><td>FB</td><td>Ảnh showroom, nội dung nhẹ cuối tuần</td><td>—</td><td>Khách B2B ít quyết định cuối tuần</td></tr>
+<tr><td>14/9</td><td>Hai</td><td>Web+FB</td><td>Bài "Tông màu nội thất 2026 và mã kháng ẩm tương ứng tại Thanh Thùy" (liên kết trực tiếp xu hướng thiết kế với mã sản phẩm)</td><td>CHÌ T, LATTE T, KEM SH/T, 682 MW</td><td>Bài SEO dài, kết nối nghiên cứu xu hướng thật (Mục 2) với sản phẩm có tồn kho tốt (3,8–4,0 tuần)</td></tr>
+<tr><td>15/9</td><td>Ba</td><td>FB</td><td>Mini-poll: "Tông màu nào bạn thấy hợp xu hướng 2026 nhất?"</td><td>Nhóm mã xu hướng</td><td>Thu thập insight, định hướng tuần 2</td></tr>
+</table>
+
+<div class="weekhead">TUẦN 2 (16–22/9) — Trọng tâm đẩy: nhóm mã khớp xu hướng 2026 + 01 G (an toàn cho quảng cáo trả phí)</div>
+<table>
+<tr><th>Ngày</th><th>Thứ</th><th>Kênh</th><th>Nội dung</th><th>Sản phẩm</th><th>Vai trò & lý do</th></tr>
+<tr><td>16/9</td><td>Tư</td><td>Web+FB</td><td>Bài "Vì sao tông be/kem/xám ấm đang chiếm lĩnh thiết kế nội thất 2026"</td><td>KEM SH/T, LATTE T, CHÌ T</td><td><span class="tag push">Trọng tâm đẩy</span> — nội dung giáo dục xu hướng, dẫn tới sản phẩm cụ thể còn hàng tốt</td></tr>
+<tr><td>17/9</td><td>Năm</td><td>FB (Reel)</td><td>Reel cận cảnh mã <b>01 G</b> — tồn kho tốt nhất nhóm (6,7 tuần)</td><td>01 G</td><td><span class="tag push">Ưu tiên cho boost quảng cáo</span> — mã an toàn nhất để tăng ngân sách vì tồn kho dư dả nhất</td></tr>
+<tr><td>18/9</td><td>Sáu</td><td>Web+FB</td><td>Infographic kỹ thuật: Kháng ẩm LMR/MMR/HMR khác nhau thế nào</td><td>Kháng ẩm (kỹ thuật, trung lập)</td><td>Phục vụ mọi mã, không thiên vị SKU nào</td></tr>
+<tr><td>19/9</td><td>Bảy</td><td>FB</td><td>Hậu trường đóng gói, kiểm hàng</td><td>Vận hành/kho</td><td>Dịp tự nhiên để nội bộ rà soát lại tồn kho các mã đang đẩy</td></tr>
+<tr><td>20/9</td><td>CN</td><td>FB</td><td>Album công trình dùng mã <b>682 MW</b> / <b>503 MM</b></td><td>682 MW, 503 MM</td><td>Tồn kho 3,6–3,8 tuần — an toàn, case study cho nhóm cần thêm nhận biết</td></tr>
+<tr><td>21/9</td><td>Hai</td><td>Web</td><td>Công cụ tính khối lượng ván kháng ẩm cho 1 bộ tủ bếp</td><td>Kháng ẩm (mọi mã, trung lập)</td><td>Giữ chân khách kỹ thuật, không thiên vị mã</td></tr>
+<tr><td>22/9</td><td>Ba</td><td>FB</td><td>Q&A: "Mã nào đang có sẵn để giao ngay?"</td><td>Nhóm mã tồn kho tốt (loại trừ 209 SN)</td><td>Chủ động thông báo mã nào KHÔNG còn hàng (209 SN) để tránh khách hỏi rồi thất vọng</td></tr>
+</table>
+
+<div class="weekhead">TUẦN 3 (23–29/9) — Durabo CHỈ 3 mã còn hàng tốt + Trung Thu (25/9)</div>
+<table>
+<tr><th>Ngày</th><th>Thứ</th><th>Kênh</th><th>Nội dung</th><th>Sản phẩm</th><th>Vai trò & lý do</th></tr>
+<tr><td>23/9</td><td>Tư</td><td>Web+FB</td><td>"3 lựa chọn Ván Nhựa Durabo đang có sẵn cho khu vực siêu ẩm"</td><td><b>Chỉ</b> 388 WN-ES, 388 T LE, 503 WN</td><td><span class="tag push">Trọng tâm đẩy phụ</span> — CHỈ nhắc 3 mã còn hàng tốt (7,9–11,6 tuần), không nhắc "Durabo" chung chung để tránh dẫn khách đến mã đã hết hàng</td></tr>
+<tr><td>24/9</td><td>Năm</td><td>FB</td><td>Teaser Trung Thu, sáng tạo nhẹ từ vật liệu dư</td><td>—</td><td>Chuyển nhịp sang lễ hội</td></tr>
+<tr><td>25/9</td><td>Sáu</td><td>FB (Trung Thu)</td><td>Chúc Trung Thu, gắn kết, KHÔNG bán hàng</td><td>—</td><td>Ưu tiên thiện cảm dài hạn</td></tr>
+<tr><td>26/9</td><td>Bảy</td><td>FB (Reel)</td><td>Reel mã <b>503 WN</b> — tồn kho tốt nhất nhóm Durabo (11,6 tuần)</td><td>Durabo 503 WN</td><td>An toàn nhất trong nhóm Durabo để làm nội dung sâu hơn</td></tr>
+<tr><td>27/9</td><td>CN</td><td>FB</td><td>Case study ảnh trước/sau dùng Durabo 388 T (LE)</td><td>Durabo 388 T LE</td><td>Tồn kho 9,1 tuần — an toàn</td></tr>
+<tr><td>28/9</td><td>Hai</td><td>Web</td><td>Case study đầy đủ dự án dùng Durabo (chỉ 3 mã còn hàng)</td><td>388 WN-ES, 388 T LE, 503 WN</td><td>Bài dài đầu tuần, SEO tốt</td></tr>
+<tr><td>29/9</td><td>Ba</td><td>FB</td><td>Ưu đãi "nhóm màu xu hướng 2026 + Durabo còn hàng" (không chỉ định 209 SN hay Durabo hết hàng)</td><td>Nhóm xu hướng + 3 mã Durabo an toàn</td><td>Ưu đãi có kiểm soát tồn kho rõ ràng</td></tr>
+</table>
+
+<div class="weekhead">TUẦN 4 (30/9–8/10) — Chốt đơn có kiểm soát tồn kho, báo cáo nội bộ về Durabo/209 SN</div>
+<table>
+<tr><th>Ngày</th><th>Thứ</th><th>Kênh</th><th>Nội dung</th><th>Sản phẩm</th><th>Vai trò & lý do</th></tr>
+<tr><td>30/9</td><td>Tư</td><td>Web+FB</td><td>"Deadline đặt hàng sỉ tháng 9 — các lựa chọn còn hàng cho mùa cao điểm"</td><td>Toàn bộ mã còn tồn kho tốt (loại 209 SN, loại Durabo hết hàng)</td><td>Thông điệp deadline theo danh mục thực tế đang có hàng</td></tr>
+<tr><td>01/10</td><td>Năm</td><td>FB</td><td>Đếm ngược ưu đãi</td><td>Cùng danh mục trên</td><td>Nhắc lại</td></tr>
+<tr><td>02/10</td><td>Sáu</td><td>FB (Reel)</td><td>Reel "Top mã khách hỏi nhiều nhất tháng 9 — còn hàng đủ để đặt ngay"</td><td>Nhóm xu hướng + top 3 bằng chứng</td><td>Social proof kết hợp xác nhận tồn kho, tránh hứa hẹn quá khả năng</td></tr>
+<tr><td>03/10</td><td>Bảy</td><td>FB</td><td>Giới thiệu Chỉ nẹp đi kèm (17,8 tuần tồn kho — hoàn toàn an toàn)</td><td>Chỉ nẹp (upsell)</td><td>Không lo hết hàng, upsell tự do</td></tr>
+<tr><td>04/10</td><td>CN</td><td>FB</td><td>Kho hàng + "giao 24h" — chỉ nhấn mạnh với các mã đã xác nhận tồn kho</td><td>Kháng ẩm (nhóm tồn kho tốt)</td><td>Tránh hứa hẹn với nhóm Durabo đang thiếu hàng</td></tr>
+<tr><td>05/10</td><td>Hai</td><td>Web</td><td>"Tháng 10 — mùa khô quay lại, chuyển trọng tâm dần sang Melamine Thường" + đề xuất nội bộ bổ sung tồn kho Durabo/209 SN</td><td>Kháng ẩm → Thường</td><td>Chuẩn bị nhịp chuyển mùa; đồng thời đây là điểm nhắc bộ phận kho về việc bổ sung hàng cho tháng tới</td></tr>
+<tr><td>06/10</td><td>Ba</td><td>FB</td><td>Tổng hợp review khách hàng tháng qua</td><td>Thương hiệu chung</td><td>Củng cố uy tín trước tháng 10 cao điểm</td></tr>
+<tr><td>07/10</td><td>Tư</td><td>FB</td><td>Ưu đãi mới cho tháng 10</td><td>Kháng ẩm + Thường</td><td>Duy trì đà chuyển đổi</td></tr>
+<tr><td>08/10</td><td>Năm</td><td>Web+FB</td><td>Tổng kết tháng 9: mã nào bán tốt, tồn kho có được bổ sung kịp không</td><td>—</td><td>Đối chiếu kế hoạch với thực tế kho vận — điều kiện tiên quyết trước khi lặp cấu trúc này cho tháng 10</td></tr>
+</table>
+
+<footer>Report chiến lược content, tích hợp dữ liệu bán hàng cả năm (01/01–11/09/2026), tồn kho thật theo từng kho, và nghiên cứu xu hướng thị trường/màu sắc/mạng xã hội 2026. Note chú ý: Cập nhật lại dữ liệu tồn kho hàng tuần trong giai đoạn cao điểm (T10–T12) vì đây là lúc tốc độ bán có thể thay đổi nhanh, ảnh hưởng trực tiếp đến số tuần tồn kho tính toán ở đây.</footer>
+
+</div>
+</body>
+</html>

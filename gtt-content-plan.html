@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GTT — Content Social Media</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --bricks-color-xdvwih:#40123e;
+    --bricks-color-wdnqug:#9d5799;
+    --bricks-color-wecvlg:#f0dbef;
+    --bricks-color-ocujvw:#eec277;
+    --bricks-color-zrtfog:#faefdc;
+    --bricks-color-dvlogu:#b6b1b7;
+    --bricks-color-ddfyyr:#69626a;
+    --bricks-color-nnnfvy:#000000;
+    --bricks-color-xyckzp:#ffffff;
+    --bricks-color-ehfojx:#efefef;
+    --bricks-color-qozrmt:#dbdbdb;
+    --bg:#faf6f0; --ink:#2b241d; --line:#e6ddd0;
+    --green:#2f6b4f; --red:#a83232; --orange:#b5502e; --blue:#3b6b8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+
+  /* HEADER */
+  .header{background:linear-gradient(135deg,var(--bricks-color-xdvwih),var(--bricks-color-wdnqug));color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .header h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .header h1 i{font-size:22px}
+  .header-actions{display:flex;gap:8px}
+  .header-actions button{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+  .header-actions button:hover{background:rgba(255,255,255,0.3)}
+  .header-actions button.danger{border-color:#ff6b6b}
+  .header-actions button.danger:hover{background:#ff6b6b;color:#fff}
+
+  /* STATS BAR */
+  .stats-bar{display:flex;gap:16px;padding:12px 28px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .stat{font-size:12px;color:#69626a}
+  .stat b{color:var(--bricks-color-xdvwih);font-size:14px}
+  .stat .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+
+  /* FILTER BAR */
+  .filter-bar{padding:10px 28px;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .filter-bar select,.filter-bar input{padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:12px;background:#fff}
+  .filter-bar label{font-size:12px;color:#69626a;font-weight:600}
+
+  /* TABLE */
+  .table-wrap{overflow-x:auto;padding:0 28px 40px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;min-width:1400px}
+  th{background:var(--bricks-color-xdvwih);color:#fff;padding:10px 10px;text-align:left;font-weight:600;font-size:12px;position:sticky;top:55px;z-index:10;white-space:nowrap}
+  th i{margin-right:4px;font-size:11px}
+  td{padding:6px 8px;border:1px solid var(--line);vertical-align:top;background:#fff}
+  tr:hover td{background:#fdf8f3}
+  tr.week-separator td{border-top:3px solid var(--bricks-color-wdnqug)}
+
+  /* EDITABLE CELLS */
+  td[contenteditable="true"]{cursor:text;transition:background 0.15s}
+  td[contenteditable="true"]:focus{background:#f0e9de;outline:2px solid var(--bricks-color-wdnqug);outline-offset:-2px}
+  td.edited{background:#fdf1ea !important}
+
+  /* INPUT CELLS */
+  .cell-input{width:100%;border:none;background:transparent;font:inherit;color:inherit;padding:0;outline:none}
+  .cell-input:focus{background:#f0e9de;border-radius:3px}
+  select.cell-select{width:100%;border:none;background:transparent;font:inherit;color:inherit;padding:0;outline:none;cursor:pointer}
+  select.cell-select:focus{background:#f0e9de;border-radius:3px}
+
+  /* TAGS */
+  .tag{display:inline-block;color:#fff;border-radius:4px;padding:2px 8px;font-size:10.5px;font-weight:600;white-space:nowrap;margin:1px 2px;cursor:default}
+  .tag-fanpage{background:var(--bricks-color-wdnqug)}
+  .tag-tiktok{background:#000}
+  .tag-youtube{background:#c4302b}
+  .tag-zalo{background:#0068ff}
+  .tag-linkedin{background:#0077b5}
+  .tag-web{background:var(--green)}
+  .tag-reel{background:var(--orange)}
+
+  /* MULTI-SELECT DROPDOWN */
+  .ms-wrap{position:relative;min-width:140px}
+  .ms-btn{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:6px;padding:5px 8px;cursor:pointer;background:#fff;font-size:12px;min-height:30px;flex-wrap:wrap;gap:2px}
+  .ms-btn:hover{border-color:var(--bricks-color-wdnqug)}
+  .ms-btn .arrow{font-size:10px;color:#999;margin-left:4px}
+  .ms-btn .placeholder{color:#aaa;font-style:italic}
+  .ms-dd{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:50;max-height:220px;overflow-y:auto}
+  .ms-dd.open{display:block}
+  .ms-item{display:flex;align-items:center;gap:6px;padding:7px 10px;cursor:pointer;font-size:12px;transition:background .1s}
+  .ms-item:hover{background:#fdf1ea}
+  .ms-item input[type="checkbox"]{accent-color:var(--bricks-color-wdnqug);width:14px;height:14px;cursor:pointer}
+  .ms-item label{cursor:pointer;flex:1;display:flex;align-items:center;gap:5px}
+  .ms-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .ms-actions{display:flex;border-top:1px solid var(--line);padding:6px 10px;gap:8px}
+  .ms-actions button{flex:1;padding:4px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer}
+  .ms-actions .ms-ok{background:var(--bricks-color-xdvwih);color:#fff}
+  .ms-actions .ms-clear{background:var(--line);color:var(--ink)}
+  .ms-add{display:flex;border-top:1px solid var(--line);padding:6px 8px;gap:4px}
+  .ms-add input{flex:1;border:1px solid var(--line);border-radius:4px;padding:4px 7px;font-size:11px;outline:none}
+  .ms-add input:focus{border-color:var(--bricks-color-wdnqug)}
+  .ms-add button{padding:4px 8px;border:none;border-radius:4px;background:var(--green);color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .ms-add button:hover{background:#245a3e}
+
+  /* STATUS */
+  .status-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;display:inline-block}
+  .status-cho-duyet{background:#fdf1ea;color:#b5502e}
+  .status-da-duyet{background:#eef6f0;color:#2f6b4f}
+  .status-da-dang{background:#e3f0ff;color:#3b6b8a}
+  .status-huy{background:#fce4ec;color:#a83232}
+  .status-cho{background:#f5f5f5;color:#757575}
+
+  /* ROW ACTIONS */
+  .row-actions{display:flex;gap:4px;white-space:nowrap}
+  .row-actions button{background:none;border:1px solid var(--line);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;transition:all 0.15s}
+  .row-actions button:hover{background:var(--line)}
+  .row-actions button.del:hover{background:#fce4ec;color:var(--red);border-color:var(--red)}
+
+  /* LINK CELL */
+  .link-cell{display:flex;align-items:center;gap:4px}
+  .link-cell input{width:100%;border:1px solid var(--line);border-radius:4px;padding:3px 6px;font-size:11px;outline:none}
+  .link-cell input:focus{border-color:var(--bricks-color-wdnqug)}
+  .link-cell a{color:var(--blue);font-size:11px;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;display:block}
+  .link-cell a:hover{text-decoration:underline}
+
+  /* WEEK LABELS */
+  .week-label{background:var(--bricks-color-wdnqug);color:#fff;padding:8px 14px;font-size:13px;font-weight:700;border-radius:6px;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+  .week-label:first-child{margin-top:10px}
+  .week-label i{font-size:14px}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
+  .modal-overlay.active{display:flex}
+  .modal{background:#fff;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+  .modal h3{margin-bottom:16px;color:var(--bricks-color-xdvwih)}
+  .modal label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#69626a}
+  .modal input,.modal select,.modal textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;margin-bottom:12px}
+  .modal textarea{min-height:80px;resize:vertical}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+  .modal-actions button{padding:8px 18px;border-radius:6px;border:none;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-primary{background:var(--bricks-color-xdvwih);color:#fff}
+  .btn-secondary{background:var(--line);color:var(--ink)}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--bricks-color-xdvwih);color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:300;transform:translateY(100px);opacity:0;transition:all 0.3s}
+  .toast.show{transform:translateY(0);opacity:1}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    .header{flex-direction:column;gap:10px}
+    .stats-bar{flex-direction:column;gap:8px}
+    .filter-bar{flex-direction:column}
+    table{min-width:1000px}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1><i class="fas fa-calendar-check"></i> Content Social Media</h1>
+  <div class="header-actions">
+    <button onclick="addNewRow()"><i class="fas fa-plus"></i> Thêm dòng</button>
+    <button onclick="exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+    <button onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Import</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+    <button onclick="saveAll()"><i class="fas fa-save"></i> Lưu tất cả</button>
+    <button class="danger" onclick="resetAll()"><i class="fas fa-trash"></i> Xóa hết</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar" id="statsBar"></div>
+
+<!-- FILTERS -->
+<div class="filter-bar">
+  <label>Tuần:</label>
+  <select id="filterWeek" onchange="applyFilters()">
+    <option value="">Tất cả</option>
+  </select>
+  <label>Kênh:</label>
+  <select id="filterChannel" onchange="applyFilters()">
+    <option value="">Tất cả</option>
+    <option value="Fanpage">Fanpage</option>
+    <option value="Fanpage (Reel)">Fanpage (Reel)</option>
+    <option value="TikTok">TikTok</option>
+    <option value="YouTube">YouTube</option>
+    <option value="Website">Website</option>
+    <option value="Zalo Video">Zalo Video</option>
+    <option value="LinkedIn">LinkedIn</option>
+  </select>
+  <label>Trạng thái:</label>
+  <select id="filterStatus" onchange="applyFilters()">
+    <option value="">Tất cả</option>
+    <option value="Chờ duyệt">Chờ duyệt</option>
+    <option value="Đã duyệt">Đã duyệt</option>
+    <option value="Đã đăng">Đã đăng</option>
+    <option value="Hủy">Hủy</option>
+  </select>
+  <label>Tìm:</label>
+  <input type="text" id="filterSearch" placeholder="Nhập nội dung, sản phẩm..." oninput="applyFilters()" style="min-width:200px">
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <table id="planTable">
+    <thead>
+      <tr>
+        <th style="width:36px">#</th>
+        <th style="width:100px"><i class="fas fa-calendar"></i> Ngày</th>
+        <th style="width:60px"><i class="fas fa-clock"></i> Thứ</th>
+        <th style="width:120px"><i class="fas fa-share-nodes"></i> Kênh đăng</th>
+        <th style="min-width:220px"><i class="fas fa-pen"></i> Nội dung</th>
+        <th style="width:150px"><i class="fas fa-tag"></i> Chủ đề / Sản phẩm</th>
+        <th style="min-width:180px"><i class="fas fa-lightbulb"></i> Lý do chọn</th>
+        <th style="width:100px"><i class="fas fa-flag"></i> Trạng thái</th>
+        <th style="width:100px"><i class="fas fa-clock"></i> Ngày đăng</th>
+        <th style="width:100px"><i class="fas fa-link"></i> Link</th>
+        <th style="width:80px"><i class="fas fa-cog"></i></th>
+      </tr>
+    </thead>
+    <tbody id="planBody"></tbody>
+  </table>
+</div>
+
+<!-- MODAL THÊM/SỬA -->
+<div class="modal-overlay" id="rowModal">
+  <div class="modal">
+    <h3 id="modalTitle">Thêm dòng mới</h3>
+    <input type="hidden" id="editIndex" value="-1">
+    <label>Ngày</label>
+    <input type="date" id="mDate" value="">
+    <label>Nội dung</label>
+    <textarea id="mContent" placeholder="Nội dung bài đăng..."></textarea>
+    <label>Chủ đề / Sản phẩm</label>
+    <input type="text" id="mProduct" placeholder="VD: 388 SN, CHÌ T...">
+    <label>Lý do chọn</label>
+    <textarea id="mReason" placeholder="Lý do chọn nội dung này..."></textarea>
+    <label>Kênh đăng (chọn nhiều)</label>
+    <div id="mChannelsWrap" style="border:1px solid var(--line);border-radius:6px;padding:6px;max-height:160px;overflow-y:auto;margin-bottom:10px"></div>
+    <label>Trạng thái</label>
+    <select id="mStatus">
+      <option value="Chờ duyệt">Chờ duyệt</option>
+      <option value="Đã duyệt">Đã duyệt</option>
+      <option value="Đã đăng">Đã đăng</option>
+      <option value="Hủy">Hủy</option>
+    </select>
+    <label>Ngày đăng (nếu khác)</label>
+    <input type="date" id="mPostDate" value="">
+    <label>Link video/file (dán URL để duyệt)</label>
+    <input type="text" id="mLink" placeholder="https://drive.google.com/... hoặc link video, file ảnh...">
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Hủy</button>
+      <button class="btn-primary" onclick="saveRow()">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== DATA ====================
+let CHANNEL_LIST = ['Fanpage','Fanpage (Reel)','TikTok','YouTube','Zalo Video','LinkedIn','Website'];
+const CHANNEL_COLORS = {'Fanpage':'var(--bricks-color-wdnqug)','Fanpage (Reel)':'var(--orange)','TikTok':'#000','YouTube':'#c4302b','Zalo Video':'#0068ff','LinkedIn':'#0077b5','Website':'var(--green)'};
+const STATUSES = ['Chờ duyệt','Đã duyệt','Đã đăng','Hủy'];
+const DAYS_VN = ['CN','Hai','Ba','Tư','Năm','Sáu','Bảy'];
+
+function chColor(c){return CHANNEL_COLORS[c]||'var(--dark)'}
+
+const defaultData = [];
+
+// ==================== STATE ====================
+let planData = [];
+const STORAGE_KEY = 'gtt_content_plan';
+const CHANNEL_KEY = 'gtt_channel_list';
+
+function loadData(){
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    try{ planData = JSON.parse(saved); }catch(e){ planData = JSON.parse(JSON.stringify(defaultData)); }
+  } else {
+    planData = JSON.parse(JSON.stringify(defaultData));
+  }
+  // Migrate old 'channel' string to 'channels' array
+  planData.forEach(r=>{
+    if(r.channel && !r.channels){
+      const map={'FB':['Fanpage'],'FB (Reel)':['Fanpage (Reel)'],'FB+Web':['Fanpage','Website'],'Web':['Website'],'Tiktok':['TikTok'],'Youtube':['YouTube'],'Zalo Video':['Zalo Video'],'Linkedin':['LinkedIn']};
+      r.channels = map[r.channel] || ['Fanpage'];
+      delete r.channel;
+    }
+    if(!Array.isArray(r.channels)) r.channels = ['Fanpage'];
+  });
+  // Load custom channel list
+  const cl = localStorage.getItem(CHANNEL_KEY);
+  if(cl){ try{ CHANNEL_LIST = JSON.parse(cl); }catch(e){} }
+}
+
+function saveAll(){
+  collectEdits();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(planData));
+  localStorage.setItem(CHANNEL_KEY, JSON.stringify(CHANNEL_LIST));
+  showToast('Đã lưu tất cả!');
+  renderTable();
+}
+
+function resetAll(){
+  if(!confirm('Xóa toàn bộ dữ liệu và khôi phục mặc định?')) return;
+  planData = JSON.parse(JSON.stringify(defaultData));
+  CHANNEL_LIST = ['Fanpage','Fanpage (Reel)','TikTok','YouTube','Zalo Video','LinkedIn','Website'];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(planData));
+  localStorage.setItem(CHANNEL_KEY, JSON.stringify(CHANNEL_LIST));
+  renderTable();
+  showToast('Đã khôi phục dữ liệu mặc định');
+}
+
+function saveChannels(){
+  localStorage.setItem(CHANNEL_KEY, JSON.stringify(CHANNEL_LIST));
+}
+
+// ==================== HELPERS ====================
+function getDateRange(){
+  if(!planData.length) return {min:null,max:null};
+  const dates = planData.map(r=>new Date(r.date+'T00:00:00')).filter(d=>!isNaN(d));
+  if(!dates.length) return {min:null,max:null};
+  return {min:new Date(Math.min(...dates)),max:new Date(Math.max(...dates))};
+}
+
+function getWeek(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  const {min} = getDateRange();
+  if(!min) return 1;
+  // Calculate week number based on Monday-Sunday weeks from the start date
+  const startOfWeek = new Date(min);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1); // Monday
+  const diffDays = Math.floor((d - startOfWeek) / (7*24*60*60*1000));
+  return Math.max(1, diffDays + 1);
+}
+
+function getWeekDateRange(w){
+  const {min} = getDateRange();
+  if(!min) return '';
+  const startOfWeek = new Date(min);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1); // Monday of week 1
+  const weekStart = new Date(startOfWeek);
+  weekStart.setDate(weekStart.getDate() + (w-1)*7);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const fmtShort = (d) => d.getDate()+'/'+(d.getMonth()+1);
+  return fmtShort(weekStart)+'–'+fmtShort(weekEnd);
+}
+
+function getAllWeeks(){
+  const weeks = new Set();
+  planData.forEach(r => weeks.add(getWeek(r.date)));
+  return [...weeks].sort((a,b)=>a-b);
+}
+
+function getDayOfWeek(dateStr){
+  const d = new Date(dateStr + 'T00:00:00');
+  return DAYS_VN[d.getDay()];
+}
+
+function getWeekLabel(w){
+  return 'Tuần '+w+' ('+getWeekDateRange(w)+')';
+}
+
+function updateWeekFilter(){
+  const sel = document.getElementById('filterWeek');
+  const cur = sel.value;
+  const weeks = getAllWeeks();
+  sel.innerHTML = '<option value="">Tất cả</option>' + weeks.map(w=>`<option value="${w}" ${String(w)===cur?'selected':''}>${getWeekLabel(w)}</option>`).join('');
+}
+
+function formatDate(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('vi-VN');
+}
+
+function getChannelTags(channels){
+  if(!Array.isArray(channels)) channels = [channels];
+  return channels.map(c=>`<span class="tag" style="background:${chColor(c)}">${c}</span>`).join('');
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function showLinkInput(idx){
+  const cell = document.getElementById('linkCell'+idx);
+  if(!cell) return;
+  cell.innerHTML = `<input type="text" placeholder="Dán link..." value="${planData[idx].link||''}" onchange="updateField(${idx},'link',this.value);renderTable()" autofocus>`;
+  cell.querySelector('input').focus();
+}
+
+// ==================== MULTI-SELECT DROPDOWN ====================
+let msTarget = null; // which row index this dropdown belongs to
+
+function buildMultiSelect(channels, idx){
+  const sel = Array.isArray(channels) ? channels : [];
+  const hasSel = sel.length > 0;
+  let tagsHtml = hasSel ? sel.map(c=>`<span class="tag" style="background:${chColor(c)};font-size:10px;padding:1px 6px">${c}</span>`).join('') : '<span class="placeholder">Chọn kênh...</span>';
+  const items = CHANNEL_LIST.map(c=>{
+    const checked = sel.includes(c) ? 'checked' : '';
+    return `<div class="ms-item" onclick="event.stopPropagation()"><input type="checkbox" id="ms_${idx}_${c}" value="${c}" ${checked} onchange="msToggle(${idx},'${c}',this.checked)"><label for="ms_${idx}_${c}"><span class="dot" style="background:${chColor(c)}"></span>${c}</label></div>`;
+  }).join('');
+  return `<div class="ms-wrap" id="msw_${idx}">
+    <div class="ms-btn" onclick="msToggleDD(${idx})"><div class="ms-tags">${tagsHtml}</div><span class="arrow">▾</span></div>
+    <div class="ms-dd" id="msd_${idx}">
+      ${items}
+      <div class="ms-add"><input type="text" id="msNew_${idx}" placeholder="Thêm nền tảng..." onkeydown="if(event.key==='Enter'){msAddNew(${idx});event.preventDefault()}"><button onclick="msAddNew(${idx})">+</button></div>
+      <div class="ms-actions"><button class="ms-clear" onclick="msClearAll(${idx})">Bỏ chọn</button></div>
+    </div>
+  </div>`;
+}
+
+function msToggleDD(idx){
+  const dd = document.getElementById('msd_'+idx);
+  const wasOpen = dd.classList.contains('open');
+  // Close all open dropdowns
+  document.querySelectorAll('.ms-dd.open').forEach(el=>el.classList.remove('open'));
+  if(!wasOpen) dd.classList.add('open');
+}
+
+function msToggle(idx, channel, checked){
+  if(!planData[idx]) return;
+  if(!Array.isArray(planData[idx].channels)) planData[idx].channels = [];
+  if(checked){
+    if(!planData[idx].channels.includes(channel)) planData[idx].channels.push(channel);
+  } else {
+    planData[idx].channels = planData[idx].channels.filter(c=>c!==channel);
+  }
+  // Re-render this dropdown's tags
+  const w = document.getElementById('msw_'+idx);
+  if(w){
+    const tags = planData[idx].channels.map(c=>`<span class="tag" style="background:${chColor(c)};font-size:10px;padding:1px 6px">${c}</span>`).join('');
+    const tagsDiv = w.querySelector('.ms-tags');
+    tagsDiv.innerHTML = tags || '<span class="placeholder">Chọn kênh...</span>';
+  }
+}
+
+function msClearAll(idx){
+  if(!planData[idx]) return;
+  planData[idx].channels = [];
+  // Uncheck all
+  document.querySelectorAll(`#msd_${idx} input[type=checkbox]`).forEach(cb=>cb.checked=false);
+  const tagsDiv = document.querySelector(`#msw_${idx} .ms-tags`);
+  if(tagsDiv) tagsDiv.innerHTML = '<span class="placeholder">Chọn kênh...</span>';
+}
+
+function msAddNew(idx){
+  const inp = document.getElementById('msNew_'+idx);
+  const name = inp.value.trim();
+  if(!name) return;
+  if(CHANNEL_LIST.some(c=>c.toLowerCase()===name.toLowerCase())){
+    showToast('Nền tảng đã tồn tại!');
+    return;
+  }
+  CHANNEL_LIST.push(name);
+  saveChannels();
+  // Re-render ALL multi-select dropdowns
+  renderTable();
+  showToast('Đã thêm: ' + name);
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.ms-wrap')){
+    document.querySelectorAll('.ms-dd.open').forEach(el=>el.classList.remove('open'));
+  }
+});
+
+// ==================== RENDER ====================
+function renderTable(){
+  collectEdits();
+  updateWeekFilter();
+  const tbody = document.getElementById('planBody');
+  const filterWeek = document.getElementById('filterWeek').value;
+  const filterChannel = document.getElementById('filterChannel').value;
+  const filterStatus = document.getElementById('filterStatus').value;
+  const filterSearch = document.getElementById('filterSearch').value.toLowerCase();
+
+  let filtered = planData.filter((r,i) => {
+    r._index = i;
+    if(filterWeek && getWeek(r.date) != filterWeek) return false;
+    if(filterChannel && !(r.channels||[]).includes(filterChannel)) return false;
+    if(filterStatus && r.status !== filterStatus) return false;
+    if(filterSearch && !(r.content+r.product+r.reason).toLowerCase().includes(filterSearch)) return false;
+    return true;
+  });
+
+  // Group by week
+  const groups = {};
+  filtered.forEach(r => {
+    const w = getWeek(r.date);
+    if(!groups[w]) groups[w] = [];
+    groups[w].push(r);
+  });
+
+  let html = '';
+  const weeks = getAllWeeks();
+  weeks.forEach(w => {
+    if(!groups[w] || groups[w].length === 0) return;
+    html += `<tr><td colspan="11"><div class="week-label"><i class="fas fa-calendar-week"></i> ${getWeekLabel(w)}</div></td></tr>`;
+    groups[w].forEach((r,i) => {
+      const dayOfWeek = getDayOfWeek(r.date);
+      const isWeekend = (dayOfWeek === 'Bảy' || dayOfWeek === 'CN');
+      const rowClass = isWeekend ? 'style="background:#fdf8f3"' : '';
+      html += `<tr data-index="${r._index}" ${rowClass}>
+        <td style="text-align:center;color:#b6b1b7;font-size:11px">${i+1}</td>
+        <td><input type="date" class="cell-input" value="${r.date}" onchange="updateField(${r._index},'date',this.value)"></td>
+        <td style="text-align:center;font-weight:600;color:#9d5799">${dayOfWeek}</td>
+        <td>${buildMultiSelect(r.channels||[], r._index)}</td>
+        <td contenteditable="true" onblur="updateField(${r._index},'content',this.textContent)">${r.content}</td>
+        <td contenteditable="true" onblur="updateField(${r._index},'product',this.textContent)">${r.product}</td>
+        <td contenteditable="true" onblur="updateField(${r._index},'reason',this.textContent)">${r.reason}</td>
+        <td>
+          <select class="cell-select" onchange="updateField(${r._index},'status',this.value)" style="font-weight:600">
+            ${STATUSES.map(s=>`<option value="${s}" ${s===r.status?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </td>
+        <td><input type="date" class="cell-input" value="${r.date}" onchange="updateField(${r._index},'postDate',this.value)"></td>
+        <td>
+          <div class="link-cell" id="linkCell${r._index}">
+            ${r.link ? `<a href="${r.link}" target="_blank" title="${r.link}"><i class="fas fa-external-link-alt"></i> Xem</a><button onclick="showLinkInput(${r._index})" style="background:none;border:1px solid var(--line);border-radius:3px;padding:2px 5px;cursor:pointer;font-size:10px" title="Sửa link"><i class="fas fa-pen"></i></button>` : `<input type="text" placeholder="Dán link..." value="${r.link||''}" onchange="updateField(${r._index},'link',this.value);renderTable()">`}
+          </div>
+        </td>
+        <td class="row-actions">
+          <button title="Sửa" onclick="editRow(${r._index})"><i class="fas fa-pen"></i></button>
+          <button class="del" title="Xóa" onclick="deleteRow(${r._index})"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`;
+    });
+  });
+
+  tbody.innerHTML = html;
+  updateStats();
+}
+
+function collectEdits(){
+  const tbody = document.getElementById('planBody');
+  const rows = tbody.querySelectorAll('tr[data-index]');
+  rows.forEach(row => {
+    const idx = parseInt(row.dataset.index);
+    if(isNaN(idx) || !planData[idx]) return;
+    const inputs = row.querySelectorAll('.cell-input');
+    const selects = row.querySelectorAll('.cell-select');
+    const editables = row.querySelectorAll('[contenteditable]');
+    if(inputs[0]) planData[idx].date = inputs[0].value;
+    if(editables[0]) planData[idx].content = editables[0].textContent.trim();
+    if(editables[1]) planData[idx].product = editables[1].textContent.trim();
+    if(editables[2]) planData[idx].reason = editables[2].textContent.trim();
+    if(selects[0]) planData[idx].status = selects[0].value;
+    if(inputs[1]) planData[idx].postDate = inputs[1].value;
+  });
+}
+
+function updateField(idx, field, value){
+  if(!planData[idx]) return;
+  planData[idx][field] = value;
+  if(field === 'date') renderTable();
+}
+
+// ==================== CRUD ====================
+function addNewRow(){
+  document.getElementById('modalTitle').textContent = 'Thêm dòng mới';
+  document.getElementById('editIndex').value = -1;
+  document.getElementById('mDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('mContent').value = '';
+  document.getElementById('mProduct').value = '';
+  document.getElementById('mReason').value = '';
+  document.getElementById('mStatus').value = 'Chờ duyệt';
+  document.getElementById('mPostDate').value = '';
+  document.getElementById('mLink').value = '';
+  // Build channel checkboxes in modal
+  renderModalChannels([]);
+  document.getElementById('rowModal').classList.add('active');
+}
+
+function editRow(idx){
+  const r = planData[idx];
+  document.getElementById('modalTitle').textContent = 'Sửa dòng #' + (idx+1);
+  document.getElementById('editIndex').value = idx;
+  document.getElementById('mDate').value = r.date || '';
+  document.getElementById('mContent').value = r.content || '';
+  document.getElementById('mProduct').value = r.product || '';
+  document.getElementById('mReason').value = r.reason || '';
+  document.getElementById('mStatus').value = r.status || 'Chờ duyệt';
+  document.getElementById('mPostDate').value = r.postDate || r.date || '';
+  document.getElementById('mLink').value = r.link || '';
+  renderModalChannels(r.channels || []);
+  document.getElementById('rowModal').classList.add('active');
+}
+
+function renderModalChannels(selected){
+  const wrap = document.getElementById('mChannelsWrap');
+  const items = CHANNEL_LIST.map(c=>{
+    const checked = selected.includes(c) ? 'checked' : '';
+    return `<div class="ms-item" style="padding:5px 8px"><input type="checkbox" id="mc_${c}" value="${c}" ${checked}><label for="mc_${c}"><span class="dot" style="background:${chColor(c)}"></span>${c}</label></div>`;
+  }).join('');
+  wrap.innerHTML = items + `<div class="ms-add" style="border-top:1px solid var(--line);margin-top:4px;padding-top:6px"><input type="text" id="mcNew" placeholder="Thêm nền tảng mới..." onkeydown="if(event.key==='Enter'){modalAddChannel();event.preventDefault()}"><button onclick="modalAddChannel()">+</button></div>`;
+}
+
+function modalAddChannel(){
+  const inp = document.getElementById('mcNew');
+  const name = inp.value.trim();
+  if(!name) return;
+  if(CHANNEL_LIST.some(c=>c.toLowerCase()===name.toLowerCase())){
+    showToast('Nền tảng đã tồn tại!');
+    return;
+  }
+  CHANNEL_LIST.push(name);
+  saveChannels();
+  // Re-check what was already checked
+  const checked = CHANNEL_LIST.filter(c=>{
+    const cb = document.getElementById('mc_'+c);
+    return cb && cb.checked;
+  });
+  checked.push(name);
+  renderModalChannels(checked);
+  showToast('Đã thêm: ' + name);
+}
+
+function getModalChannels(){
+  const channels = [];
+  CHANNEL_LIST.forEach(c=>{
+    const cb = document.getElementById('mc_'+c);
+    if(cb && cb.checked) channels.push(c);
+  });
+  return channels;
+}
+
+function deleteRow(idx){
+  if(!confirm('Xóa dòng này?')) return;
+  planData.splice(idx,1);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(planData));
+  renderTable();
+  showToast('Đã xóa dòng');
+}
+
+function saveRow(){
+  const idx = parseInt(document.getElementById('editIndex').value);
+  const row = {
+    date: document.getElementById('mDate').value,
+    channels: getModalChannels(),
+    content: document.getElementById('mContent').value,
+    product: document.getElementById('mProduct').value,
+    reason: document.getElementById('mReason').value,
+    status: document.getElementById('mStatus').value,
+    postDate: document.getElementById('mPostDate').value,
+    link: document.getElementById('mLink').value,
+  };
+  if(idx >= 0){
+    planData[idx] = row;
+  } else {
+    planData.push(row);
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(planData));
+  closeModal();
+  renderTable();
+  showToast(idx >= 0 ? 'Đã cập nhật dòng' : 'Đã thêm dòng mới');
+}
+
+function closeModal(){
+  document.getElementById('rowModal').classList.remove('active');
+}
+
+// ==================== STATS ====================
+function updateStats(){
+  const total = planData.length;
+  const statuses = {};
+  const channelCounts = {};
+  planData.forEach(r => {
+    statuses[r.status] = (statuses[r.status]||0) + 1;
+    (r.channels||[]).forEach(c=>{ channelCounts[c] = (channelCounts[c]||0)+1; });
+  });
+  const html = `
+    <span class="stat">Tổng: <b>${total}</b> dòng</span>
+    <span class="stat"><span class="dot" style="background:#b5502e"></span>Chờ duyệt: <b>${statuses['Chờ duyệt']||0}</b></span>
+    <span class="stat"><span class="dot" style="background:#2f6b4f"></span>Đã duyệt: <b>${statuses['Đã duyệt']||0}</b></span>
+    <span class="stat"><span class="dot" style="background:#3b6b8a"></span>Đã đăng: <b>${statuses['Đã đăng']||0}</b></span>
+    <span class="stat"><span class="dot" style="background:#a83232"></span>Hủy: <b>${statuses['Hủy']||0}</b></span>
+    <span class="stat" style="margin-left:auto;color:#b6b1b7;font-style:italic">Lưu cục bộ: ${new Date().toLocaleTimeString('vi-VN')}</span>
+  `;
+  document.getElementById('statsBar').innerHTML = html;
+}
+
+// ==================== FILTER ====================
+function applyFilters(){
+  // Update channel filter options dynamically
+  const sel = document.getElementById('filterChannel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Tất cả</option>' + CHANNEL_LIST.map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('');
+  renderTable();
+}
+
+// ==================== EXPORT / IMPORT ====================
+function exportCSV(){
+  collectEdits();
+  let csv = '\uFEFFNgày,Thứ,Kênh đăng,Nội dung,Chủ đề / Sản phẩm,Lý do chọn,Trạng thái,Ngày đăng,Link\n';
+  planData.forEach(r => {
+    const dow = getDayOfWeek(r.date);
+    const ch = (r.channels||[]).join(' + ');
+    csv += `"${formatDate(r.date)}","${dow}","${ch}","${(r.content||'').replace(/"/g,'""')}","${(r.product||'').replace(/"/g,'""')}","${(r.reason||'').replace(/"/g,'""')}","${r.status}","${formatDate(r.postDate||r.date)}","${r.link||''}"\n`;
+  });
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'gtt-content-plan.csv';
+  a.click();
+  showToast('Đã export CSV');
+}
+
+function importJSON(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(Array.isArray(data)){
+        // Migrate old format
+        data.forEach(r=>{
+          if(r.channel && !r.channels){
+            const map={'FB':['Fanpage'],'FB (Reel)':['Fanpage (Reel)'],'FB+Web':['Fanpage','Website'],'Web':['Website'],'Tiktok':['TikTok'],'Youtube':['YouTube'],'Zalo Video':['Zalo Video'],'Linkedin':['LinkedIn']};
+            r.channels = map[r.channel] || ['Fanpage'];
+            delete r.channel;
+          }
+          if(!Array.isArray(r.channels)) r.channels = ['Fanpage'];
+        });
+        planData = data;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(planData));
+        renderTable();
+        showToast(`Đã import ${data.length} dòng`);
+      }
+    }catch(err){ showToast('Lỗi import: file không hợp lệ'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ==================== INIT ====================
+loadData();
+applyFilters();
+renderTable();
+</script>
+</body>
+</html>

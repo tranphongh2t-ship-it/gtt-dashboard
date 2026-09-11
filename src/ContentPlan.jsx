@@ -171,7 +171,7 @@ export default function ContentPlan({isAdmin,apiSet,apiGet,isMobile}){
       <div style={{background:"linear-gradient(135deg,#1a3c2e,#2d6a4f)",borderRadius:14,padding:isMobile?"14px 16px":"18px 24px",marginBottom:16,boxShadow:"0 4px 16px #1a3c2e33"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:12}}>
           <div>
-            <div style={{fontSize:isMobile?15:18,fontWeight:900,color:C.white}}>🌲 Plan Viết Content Website</div>
+            <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:isMobile?15:18,fontWeight:900,color:C.white}}>🌲 Plan Viết Content Website</div>
             <div style={{fontSize:11,color:"rgba(255,255,255,.65)",marginTop:2}}>{allRows.length} bài · 36 tháng · 13 nhóm{added.length>0?` · +${added.length} bài thêm`:""}{deletedCount>0?` · ${deletedCount} đã xoá`:""}</div>
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
@@ -224,7 +224,7 @@ export default function ContentPlan({isAdmin,apiSet,apiGet,isMobile}){
       {/* Add form */}
       {isAdmin&&showAddForm&&(
         <div style={{background:C.goldLight,borderRadius:14,border:`1px solid ${C.gold}`,padding:isMobile?"12px":"16px 20px",marginBottom:14}}>
-          <div style={{fontSize:13,fontWeight:800,color:C.purple,marginBottom:12}}>➕ Thêm bài viết mới</div>
+          <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:13,fontWeight:800,color:C.purple,marginBottom:12}}>➕ Thêm bài viết mới</div>
           <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:10,marginBottom:12}}>
             <div><label style={{fontSize:10,color:C.textSub,fontWeight:700,display:"block",marginBottom:3}}>Nhóm</label>
               <select style={inp} value={newRow.grp} onChange={e=>setNewRow(r=>({...r,grp:e.target.value}))}>

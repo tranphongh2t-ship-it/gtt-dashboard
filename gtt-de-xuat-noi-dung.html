@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GTT — Đề xuất & Phê duyệt</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --purple:#40123e;--purple-mid:#9d5799;--pink:#f0dbef;--gold:#eec277;
+    --cream:#faefdc;--gray:#b6b1b7;--dark:#69626a;--white:#fff;
+    --bg:#faf6f0;--ink:#2b241d;--line:#e6ddd0;
+    --green:#2f6b4f;--red:#a83232;--orange:#b5502e;--blue:#3b6b8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+
+  .header{background:linear-gradient(135deg,var(--purple),var(--purple-mid));color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .header h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .header-sub{font-size:11.5px;opacity:.8;margin-top:2px}
+  .header-actions{display:flex;gap:8px}
+  .header-actions button{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:6px}
+  .header-actions button:hover{background:rgba(255,255,255,0.3)}
+  .header-actions button.primary{background:var(--gold);color:var(--purple);border-color:var(--gold)}
+  .header-actions button.primary:hover{background:#dbb860}
+
+  .kpi-bar{display:flex;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .kpi-item{flex:1;min-width:130px;padding:14px 16px;text-align:center;border-right:1px solid var(--line)}
+  .kpi-item:last-child{border-right:none}
+  .kpi-item .num{font-size:24px;font-weight:800}
+  .kpi-item .lbl{font-size:10.5px;color:var(--dark);margin-top:2px}
+
+  .workflow{display:flex;align-items:center;gap:0;padding:10px 28px;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto}
+  .workflow-step{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:16px;font-size:11px;font-weight:700;white-space:nowrap}
+  .workflow-step .ic{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+  .s1{background:#fdf1ea;color:#b5502e}.s1 .ic{background:#b5502e}
+  .s2{background:#fff8e1;color:#f57f17}.s2 .ic{background:#f57f17}
+  .s3{background:#eef6f0;color:#2f6b4f}.s3 .ic{background:#2f6b4f}
+  .s4{background:#e3f0ff;color:#3b6b8a}.s4 .ic{background:#3b6b8a}
+  .s5{background:#f3e5f5;color:#7b1fa2}.s5 .ic{background:#7b1fa2}
+  .s6{background:#e8f5e9;color:#1b5e20}.s6 .ic{background:#1b5e20}
+  .wf-arr{color:var(--gray);font-size:14px;margin:0 3px}
+
+  .filter-bar{padding:10px 28px;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .filter-bar select,.filter-bar input{padding:5px 8px;border:1px solid var(--line);border-radius:5px;font-size:12px}
+  .filter-bar label{font-size:11.5px;color:var(--dark);font-weight:600}
+
+  .table-wrap{overflow-x:auto;padding:0 28px 40px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;min-width:1500px}
+  th{background:var(--purple);color:#fff;padding:9px 8px;text-align:left;font-weight:600;font-size:11.5px;position:sticky;top:0;z-index:10;white-space:nowrap}
+  th i{margin-right:3px;font-size:10px}
+  td{padding:6px 7px;border:1px solid var(--line);vertical-align:top;background:#fff}
+  tr:hover td{background:#fdf8f3}
+
+  td[contenteditable="true"]{cursor:text;transition:background .15s}
+  td[contenteditable="true"]:focus{background:#f0e9de;outline:2px solid var(--purple-mid);outline-offset:-2px}
+
+  .ci{width:100%;border:none;background:transparent;font:inherit;color:inherit;padding:0;outline:none}
+  .ci:focus{background:#f0e9de;border-radius:3px}
+  select.cs{width:100%;border:none;background:transparent;font:inherit;color:inherit;padding:0;outline:none;cursor:pointer}
+  select.cs:focus{background:#f0e9de;border-radius:3px}
+
+  .badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap;display:inline-block}
+  .b-dx{background:#fdf1ea;color:#b5502e}
+  .b-cd{background:#fff8e1;color:#f57f17}
+  .b-dd{background:#eef6f0;color:#2f6b4f}
+  .b-pd{background:#e3f0ff;color:#3b6b8a}
+  .b-th{background:#f3e5f5;color:#7b1fa2}
+  .b-hc{background:#e8f5e9;color:#1b5e20}
+  .b-tc{background:#fce4ec;color:#c62828}
+
+  .pri{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
+  .pri-cao{background:#c62828}.pri-tb{background:#f57f17}.pri-thap{background:#2e7d32}
+
+  .budget-inp{width:90px;border:1px solid var(--line);border-radius:4px;padding:3px 5px;font-size:12px;text-align:right}
+  .budget-inp:focus{outline:2px solid var(--purple-mid);border-color:transparent}
+
+  .row-act{display:flex;gap:3px;white-space:nowrap}
+  .row-act button{background:none;border:1px solid var(--line);border-radius:4px;padding:3px 7px;cursor:pointer;font-size:10px;transition:all .15s}
+  .row-act button:hover{background:var(--line)}
+  .row-act button.del:hover{background:#fce4ec;color:var(--red);border-color:var(--red)}
+
+  .empty{text-align:center;padding:50px 20px;color:var(--gray)}
+  .empty i{font-size:42px;margin-bottom:10px;opacity:.35}
+  .empty p{font-size:13px}
+
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center}
+  .modal-bg.on{display:flex}
+  .modal{background:#fff;border-radius:12px;padding:22px;max-width:580px;width:95%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+  .modal h3{margin-bottom:14px;color:var(--purple);font-size:16px}
+  .mg{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  .mg .full{grid-column:1/-1}
+  .modal label{display:block;font-size:11px;font-weight:600;margin-bottom:2px;color:var(--dark);margin-top:8px}
+  .modal input,.modal select,.modal textarea{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:5px;font-size:12.5px;margin-bottom:2px}
+  .modal textarea{min-height:60px;resize:vertical}
+  .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
+  .modal-btns button{padding:7px 18px;border-radius:5px;border:none;font-size:12.5px;font-weight:600;cursor:pointer}
+  .btn-p{background:var(--purple);color:#fff}.btn-p:hover{background:#30102e}
+  .btn-s{background:var(--line);color:var(--ink)}.btn-s:hover{background:#ccc}
+
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--purple);color:#fff;padding:10px 18px;border-radius:7px;font-size:12.5px;font-weight:600;z-index:300;transform:translateY(80px);opacity:0;transition:all .3s}
+  .toast.on{transform:translateY(0);opacity:1}
+
+  @media(max-width:768px){.header{flex-direction:column;gap:10px}.kpi-bar{flex-direction:column}.mg{grid-template-columns:1fr}.workflow{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1><i class="fas fa-clipboard-list"></i> Đề xuất & Phê duyệt</h1>
+    <div class="header-sub">Nhập đề xuất thủ công — Theo dõi luồng phê duyệt từ đề xuất đến hoàn thành</div>
+  </div>
+  <div class="header-actions">
+    <button class="primary" onclick="openModal()"><i class="fas fa-plus"></i> Đề xuất mới</button>
+    <button onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+    <button onclick="save()"><i class="fas fa-save"></i> Lưu</button>
+  </div>
+</div>
+
+<div class="workflow">
+  <div class="workflow-step s1"><span class="ic">1</span> Đề xuất</div>
+  <span class="wf-arr"><i class="fas fa-chevron-right"></i></span>
+  <div class="workflow-step s2"><span class="ic">2</span> Chờ duyệt</div>
+  <span class="wf-arr"><i class="fas fa-chevron-right"></i></span>
+  <div class="workflow-step s3"><span class="ic">3</span> Đã duyệt</div>
+  <span class="wf-arr"><i class="fas fa-chevron-right"></i></span>
+  <div class="workflow-step s4"><span class="ic">4</span> Phê duyệt chi phí</div>
+  <span class="wf-arr"><i class="fas fa-chevron-right"></i></span>
+  <div class="workflow-step s5"><span class="ic">5</span> Thực hiện</div>
+  <span class="wf-arr"><i class="fas fa-chevron-right"></i></span>
+  <div class="workflow-step s6"><span class="ic">6</span> Hoàn thành</div>
+</div>
+
+<div class="kpi-bar" id="kpi"></div>
+
+<div class="filter-bar">
+  <label>Trạng thái:</label>
+  <select id="fSt" onchange="render()"><option value="">Tất cả</option><option>Đề xuất</option><option>Chờ duyệt</option><option>Đã duyệt</option><option>Phê duyệt chi phí</option><option>Thực hiện</option><option>Hoàn thành</option><option>Từ chối</option></select>
+  <label>Ưu tiên:</label>
+  <select id="fPr" onchange="render()"><option value="">Tất cả</option><option>Cao</option><option>Trung bình</option><option>Thấp</option></select>
+  <label>Tìm:</label>
+  <input type="text" id="fSe" placeholder="Nhập nội dung, sản phẩm..." oninput="render()" style="min-width:180px">
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr>
+      <th style="width:32px">#</th>
+      <th style="width:88px"><i class="fas fa-calendar"></i> Ngày</th>
+      <th style="width:95px"><i class="fas fa-user"></i> Người đề xuất</th>
+      <th style="width:90px"><i class="fas fa-tag"></i> Loại</th>
+      <th style="min-width:180px"><i class="fas fa-pen"></i> Nội dung đề xuất</th>
+      <th style="width:110px"><i class="fas fa-box"></i> Sản phẩm</th>
+      <th style="width:100px"><i class="fas fa-share-nodes"></i> Kênh đăng</th>
+      <th style="width:75px"><i class="fas fa-signal"></i> Ưu tiên</th>
+      <th style="min-width:140px"><i class="fas fa-comment"></i> Lý do</th>
+      <th style="width:105px"><i class="fas fa-flag"></i> Trạng thái</th>
+      <th style="width:90px"><i class="fas fa-money-bill"></i> Chi phí</th>
+      <th style="width:88px"><i class="fas fa-calendar-check"></i> Ngày TH</th>
+      <th style="width:70px"><i class="fas fa-cog"></i></th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table>
+</div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3 id="mTitle">Đề xuất mới</h3>
+    <input type="hidden" id="mIdx" value="-1">
+    <div class="mg">
+      <div><label>Ngày đề xuất</label><input type="date" id="mDate"></div>
+      <div><label>Người đề xuất</label><input type="text" id="mAuthor" placeholder="Tên người đề xuất"></div>
+      <div><label>Loại đề xuất</label><select id="mType"><option>Content mới</option><option>Cải thiện</option><option>Chi phí QC</option><option>Sự kiện</option><option>Khác</option></select></div>
+      <div><label>Ưu tiên</label><select id="mPriority"><option>Trung bình</option><option>Cao</option><option>Thấp</option></select></div>
+      <div class="full"><label>Nội dung đề xuất</label><textarea id="mContent" placeholder="Mô tả đề xuất..."></textarea></div>
+      <div><label>Sản phẩm / Mã hàng</label><input type="text" id="mProduct" placeholder="VD: 388 SN, CHÌ T..."></div>
+      <div><label>Kênh đăng</label><select id="mChannel"><option>Fanpage</option><option>Fanpage (Reel)</option><option>Website</option><option>Fanpage + Website</option><option>TikTok</option><option>YouTube</option><option>Zalo</option><option>Nội bộ</option></select></div>
+      <div class="full"><label>Lý do đề xuất</label><textarea id="mReason" placeholder="Tại sao cần nội dung này?"></textarea></div>
+      <div><label>Chi phí dự kiến (VNĐ)</label><input type="text" id="mBudget" placeholder="0"></div>
+      <div><label>Ngày thực hiện</label><input type="date" id="mExecDate"></div>
+      <div><label>Trạng thái</label><select id="mStatus"><option>Đề xuất</option><option>Chờ duyệt</option><option>Đã duyệt</option><option>Phê duyệt chi phí</option><option>Thực hiện</option><option>Hoàn thành</option><option>Từ chối</option></select></div>
+      <div><label>Người duyệt</label><input type="text" id="mApprover" placeholder="Tên người duyệt"></div>
+      <div class="full"><label>Ghi chú</label><textarea id="mNote" placeholder="Ghi chú thêm..."></textarea></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-s" onclick="closeModal()">Hủy</button>
+      <button class="btn-p" onclick="saveRow()">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const S=['Đề xuất','Chờ duyệt','Đã duyệt','Phê duyệt chi phí','Thực hiện','Hoàn thành','Từ chối'];
+let D=[];
+const K='gtt_dx';
+
+function load(){const s=localStorage.getItem(K);if(s){try{D=JSON.parse(s)}catch(e){D=[]}}else D=[]}
+function save(){localStorage.setItem(K,JSON.stringify(D))}
+function fmt(n){if(!n)return'—';return Number(n.replace(/\D/g,'')).toLocaleString('vi-VN')+' ₫'}
+function fmtD(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('vi-VN')}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)}
+
+function badge(s){
+  const m={'Đề xuất':'dx','Chờ duyệt':'cd','Đã duyệt':'dd','Phê duyệt chi phí':'pd','Thực hiện':'th','Hoàn thành':'hc','Từ chối':'tc'};
+  return `<span class="badge b-${m[s]||'dx'}">${s}</span>`;
+}
+function priDot(p){
+  const m={'Cao':'pri-cao','Trung bình':'pri-tb','Thấp':'pri-thap'};
+  return `<span class="pri ${m[p]||'pri-thap'}"></span>${p}`;
+}
+
+function render(){
+  collect();
+  const fs=document.getElementById('fSt').value;
+  const fp=document.getElementById('fPr').value;
+  const fq=document.getElementById('fSe').value.toLowerCase();
+
+  let f=D.filter((r,i)=>{
+    r._i=i;
+    if(fs&&r.status!==fs)return false;
+    if(fp&&r.priority!==fp)return false;
+    if(fq&&!(r.content+r.product+r.author+r.reason||'').toLowerCase().includes(fq))return false;
+    return true;
+  });
+
+  const tb=document.getElementById('tb');
+  if(!f.length){
+    tb.innerHTML='<tr><td colspan="13"><div class="empty"><i class="fas fa-inbox"></i><p>Chưa có đề xuất nào. Nhấn "Đề xuất mới" để bắt đầu.</p></div></td></tr>';
+  } else {
+    tb.innerHTML=f.map((r,i)=>`<tr data-i="${r._i}">
+      <td style="text-align:center;color:var(--gray);font-size:11px">${i+1}</td>
+      <td><input type="date" class="ci" value="${r.date||''}" onchange="uf(${r._i},'date',this.value)"></td>
+      <td contenteditable="true" onblur="uf(${r._i},'author',this.textContent)">${r.author||''}</td>
+      <td><select class="cs" onchange="uf(${r._i},'type',this.value)"><option>Content mới</option><option>Cải thiện</option><option>Chi phí QC</option><option>Sự kiện</option><option>Khác</option></select></td>
+      <td contenteditable="true" onblur="uf(${r._i},'content',this.textContent)" style="font-weight:600">${r.content||''}</td>
+      <td contenteditable="true" onblur="uf(${r._i},'product',this.textContent)">${r.product||''}</td>
+      <td><select class="cs" onchange="uf(${r._i},'channel',this.value)"><option>Fanpage</option><option>Fanpage (Reel)</option><option>Website</option><option>Fanpage + Website</option><option>TikTok</option><option>YouTube</option><option>Zalo</option><option>Nội bộ</option></select></td>
+      <td onclick="cyclePri(${r._i})" style="cursor:pointer">${priDot(r.priority||'Thấp')}</td>
+      <td contenteditable="true" onblur="uf(${r._i},'reason',this.textContent)" style="font-size:11.5px;color:var(--dark)">${r.reason||''}</td>
+      <td><select class="cs" onchange="uf(${r._i},'status',this.value)" style="font-weight:600">${S.map(s=>`<option${s===r.status?' selected':''}>${s}</option>`).join('')}</select></td>
+      <td><input type="text" class="budget-inp" value="${r.budget||''}" onchange="uf(${r._i},'budget',this.value)"></td>
+      <td><input type="date" class="ci" value="${r.execDate||''}" onchange="uf(${r._i},'execDate',this.value)"></td>
+      <td class="row-act">
+        <button onclick="openEdit(${r._i})" title="Sửa"><i class="fas fa-pen"></i></button>
+        <button onclick="nextSt(${r._i})" title="Chuyển bước" style="color:var(--green)"><i class="fas fa-arrow-right"></i></button>
+        <button class="del" onclick="delRow(${r._i})" title="Xóa"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+    // Set selected values for selects
+    f.forEach((r,idx)=>{
+      const row=tb.querySelector(`tr[data-i="${r._i}"]`);
+      if(!row)return;
+      const sels=row.querySelectorAll('select.cs');
+      if(sels[0])sels[0].value=r.type||'Content mới';
+      if(sels[1])sels[1].value=r.channel||'Fanpage';
+      if(sels[2])sels[2].value=r.status||'Đề xuất';
+    });
+  }
+  updateKPI();
+}
+
+function collect(){
+  document.getElementById('tb').querySelectorAll('tr[data-i]').forEach(row=>{
+    const i=parseInt(row.dataset.i);if(isNaN(i)||!D[i])return;
+    const inp=row.querySelectorAll('.ci');const sel=row.querySelectorAll('select.cs');const ed=row.querySelectorAll('[contenteditable]');
+    if(inp[0])D[i].date=inp[0].value;
+    if(ed[0])D[i].author=ed[0].textContent.trim();
+    if(sel[0])D[i].type=sel[0].value;
+    if(ed[1])D[i].content=ed[1].textContent.trim();
+    if(ed[2])D[i].product=ed[2].textContent.trim();
+    if(sel[1])D[i].channel=sel[1].value;
+    if(ed[3])D[i].reason=ed[3].textContent.trim();
+    if(sel[2])D[i].status=sel[2].value;
+    if(inp[1])D[i].budget=inp[1].value;
+    if(inp[2])D[i].execDate=inp[2].value;
+  });
+}
+
+function uf(i,f,v){if(D[i])D[i][f]=v}
+
+function cyclePri(i){
+  const p=D[i].priority;
+  D[i].priority=p==='Cao'?'Trung bình':(p==='Trung bình'?'Thấp':'Cao');
+  save();render();
+}
+
+function nextSt(i){
+  const o=['Đề xuất','Chờ duyệt','Đã duyệt','Phê duyệt chi phí','Thực hiện','Hoàn thành'];
+  const c=o.indexOf(D[i].status);
+  if(c>=0&&c<o.length-1)D[i].status=o[c+1];
+  else if(D[i].status==='Từ chối')D[i].status='Đề xuất';
+  save();render();toast('→ '+D[i].status);
+}
+
+function updateKPI(){
+  const c={};S.forEach(s=>c[s]=0);D.forEach(r=>c[r.status]=(c[r.status]||0)+1);
+  const tb=D.reduce((s,r)=>s+Number((r.budget||'').replace(/\D/g,'')||0),0);
+  document.getElementById('kpi').innerHTML=`
+    <div class="kpi-item"><div class="num" style="color:var(--purple)">${D.length}</div><div class="lbl">Tổng</div></div>
+    <div class="kpi-item"><div class="num" style="color:var(--orange)">${c['Đề xuất']||0}</div><div class="lbl">Đề xuất</div></div>
+    <div class="kpi-item"><div class="num" style="color:#f57f17">${c['Chờ duyệt']||0}</div><div class="lbl">Chờ duyệt</div></div>
+    <div class="kpi-item"><div class="num" style="color:var(--green)">${c['Đã duyệt']||0}</div><div class="lbl">Đã duyệt</div></div>
+    <div class="kpi-item"><div class="num" style="color:var(--blue)">${c['Phê duyệt chi phí']||0}</div><div class="lbl">Phê duyệt CP</div></div>
+    <div class="kpi-item"><div class="num" style="color:#7b1fa2">${c['Hoàn thành']||0}</div><div class="lbl">Hoàn thành</div></div>
+    <div class="kpi-item"><div class="num" style="color:var(--purple)">${tb.toLocaleString('vi-VN')}</div><div class="lbl">Tổng chi phí (VNĐ)</div></div>`;
+}
+
+function openModal(){
+  document.getElementById('mTitle').textContent='Đề xuất mới';
+  document.getElementById('mIdx').value=-1;
+  document.getElementById('mDate').value=new Date().toISOString().slice(0,10);
+  ['mAuthor','mContent','mProduct','mReason','mBudget','mApprover','mNote'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('mType').value='Content mới';
+  document.getElementById('mPriority').value='Trung bình';
+  document.getElementById('mChannel').value='Fanpage';
+  document.getElementById('mExecDate').value='';
+  document.getElementById('mStatus').value='Đề xuất';
+  document.getElementById('modal').classList.add('on');
+}
+
+function openEdit(i){
+  const r=D[i];
+  document.getElementById('mTitle').textContent='Sửa đề xuất #'+(i+1);
+  document.getElementById('mIdx').value=i;
+  document.getElementById('mDate').value=r.date||'';
+  document.getElementById('mAuthor').value=r.author||'';
+  document.getElementById('mType').value=r.type||'Content mới';
+  document.getElementById('mContent').value=r.content||'';
+  document.getElementById('mProduct').value=r.product||'';
+  document.getElementById('mChannel').value=r.channel||'Fanpage';
+  document.getElementById('mPriority').value=r.priority||'Trung bình';
+  document.getElementById('mReason').value=r.reason||'';
+  document.getElementById('mBudget').value=r.budget||'';
+  document.getElementById('mExecDate').value=r.execDate||'';
+  document.getElementById('mStatus').value=r.status||'Đề xuất';
+  document.getElementById('mApprover').value=r.approver||'';
+  document.getElementById('mNote').value=r.note||'';
+  document.getElementById('modal').classList.add('on');
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('on')}
+
+function saveRow(){
+  const idx=parseInt(document.getElementById('mIdx').value);
+  const r={
+    date:document.getElementById('mDate').value,
+    author:document.getElementById('mAuthor').value,
+    type:document.getElementById('mType').value,
+    content:document.getElementById('mContent').value,
+    product:document.getElementById('mProduct').value,
+    channel:document.getElementById('mChannel').value,
+    priority:document.getElementById('mPriority').value,
+    reason:document.getElementById('mReason').value,
+    budget:document.getElementById('mBudget').value,
+    execDate:document.getElementById('mExecDate').value,
+    status:document.getElementById('mStatus').value,
+    approver:document.getElementById('mApprover').value,
+    note:document.getElementById('mNote').value,
+  };
+  if(idx>=0)D[idx]=r;else D.push(r);
+  save();closeModal();render();toast(idx>=0?'Đã cập nhật':'Đã thêm đề xuất');
+}
+
+function delRow(i){if(!confirm('Xóa đề xuất này?'))return;D.splice(i,1);save();render();toast('Đã xóa')}
+
+function exportCSV(){
+  collect();
+  let csv='\uFEFFNgày,Người đề xuất,Loại,Nội dung,Sản phẩm,Kênh,Ưu tiên,Lý do,Trạng thái,Chi phí,Ngày thực hiện,Người duyệt,Ghi chú\n';
+  D.forEach(r=>{csv+=`"${fmtD(r.date)}","${r.author||''}","${r.type||''}","${(r.content||'').replace(/"/g,'""')}","${r.product||''}","${r.channel||''}","${r.priority||''}","${(r.reason||'').replace(/"/g,'""')}","${r.status}","${r.budget||''}","${fmtD(r.execDate)}","${r.approver||''}","${(r.note||'').replace(/"/g,'""')}"\n`});
+  const b=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='gtt-de-xuat.csv';a.click();
+  toast('Đã export CSV');
+}
+
+load();render();
+</script>
+</body>
+</html>
