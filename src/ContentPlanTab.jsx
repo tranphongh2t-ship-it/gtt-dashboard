@@ -292,17 +292,6 @@ export default function ContentPlanTab({ Card, SecTitle, isMobile }) {
             </tr>
           </thead>
           <tbody>
-            {allWeeks.map(w => {
-              const rows = groups[w] || [];
-              if (!rows.length) return null;
-              return (
-                <tr key={w}>
-                  <td colSpan={10} style={{ background: '#f0dbef33', padding: '6px 10px', fontWeight: 700, fontSize: 11, color: '#9d5799', borderBottom: '2px solid #9d579944' }}>
-                    📅 {getWeekLabel(w, data)}
-                  </td>
-                </tr>
-              );
-            })}
             {filtered.map((r, i) => {
               const di = data.indexOf(r);
               const dow = getDayOfWeek(r.date);
