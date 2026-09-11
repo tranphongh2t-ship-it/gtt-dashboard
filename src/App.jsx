@@ -1033,8 +1033,8 @@ export default function App() {
           <div style={{display:"flex",alignItems:"center",gap:isMobile?10:14}}>
             <div onClick={handleLogoClick} style={{width:isMobile?34:40,height:isMobile?34:40,borderRadius:10,background:`linear-gradient(135deg,${C.gold},${C.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 2px 8px #eec27744",cursor:isAdmin?"default":"pointer",transition:"transform .15s",userSelect:"none"}} title={isAdmin?"🔑 Admin":"Click để đăng nhập admin"}><img src="/logo.png" alt="GTT" style={{width:isMobile?24:28,height:isMobile?24:28,objectFit:"contain"}} /></div>
             <div>
-              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1}}>Gỗ Thanh Thùy</div>
-              {!isMobile&&<div style={{fontSize:10,color:`${C.gold}cc`,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Marketing Dashboard</div>}
+              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1,fontFamily:"'911 Porscha',cursive"}}>Gỗ Thanh Thùy</div>
+              {!isMobile&&<div style={{fontSize:10,color:`${C.gold}cc`,fontWeight:600,letterSpacing:1,textTransform:"uppercase",fontFamily:"'911 Porscha',cursive"}}>Marketing Dashboard</div>}
             </div>
           </div>
 
