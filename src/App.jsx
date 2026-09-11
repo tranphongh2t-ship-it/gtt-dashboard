@@ -3,6 +3,9 @@ import { C } from "./colors";
 import ContentPlan from "./ContentPlan";
 import CauTruc from "./CauTruc";
 import KeyRank from "./KeyRank";
+import ContentPlanTab from "./ContentPlanTab";
+import DeXuatTab from "./DeXuatTab";
+import BieuDoTab from "./BieuDoTab";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -211,9 +214,9 @@ export default function App() {
     {id:"content",label:"Plan Content",icon:"✍️"},
     {id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},
     {id:"keyrank",label:"Từ Khóa",icon:"📊"},
-    {id:"social",label:"Content Social Media",icon:"📅",href:"gtt-content-plan.html"},
-    {id:"dexuat",label:"Đề Xuất Nội Dung",icon:"📝",href:"gtt-de-xuat-noi-dung.html"},
-    {id:"bieudo",label:"Biểu Đồ Tổng Quan",icon:"📊",href:"gtt-bieu-do-tong-quan.html"},
+    {id:"social",label:"Content Social Media",icon:"📅"},
+    {id:"dexuat",label:"Đề Xuất Nội Dung",icon:"📝"},
+    {id:"bieudo",label:"Biểu Đồ Tổng Quan",icon:"📊"},
     ...(isAdmin ? [{id:"input",label:"Nhập liệu",icon:"✎"}] : []),
   ];
 
@@ -1038,7 +1041,7 @@ export default function App() {
           {/* Desktop nav */}
           {!isMobile&&(
             <div style={{display:"flex",gap:2}}>
-              {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>{if(t.href){window.open(t.href,'_blank')}else{setTab(t.id)}}} style={{padding:"8px 18px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,borderBottom:act?`2px solid ${C.gold}`:"2px solid transparent",transition:"all .15s"}}>{t.icon} {t.label}</button>; })}
+              {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"8px 18px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,borderBottom:act?`2px solid ${C.gold}`:"2px solid transparent",transition:"all .15s"}}>{t.icon} {t.label}</button>; })}
             </div>
           )}
 
@@ -1060,7 +1063,7 @@ export default function App() {
         {/* Mobile dropdown menu */}
         {isMobile&&mobileMenuOpen&&(
           <div style={{background:C.purple,borderTop:`1px solid #ffffff22`,padding:"8px 14px 12px"}}>
-            {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>{if(t.href){window.open(t.href,'_blank')}else{setTab(t.id)}setMobileMenuOpen(false);}} style={{display:"block",width:"100%",textAlign:"left",padding:"11px 14px",borderRadius:10,border:"none",cursor:"pointer",fontWeight:700,fontSize:14,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,marginBottom:2}}>{t.icon} {t.label}</button>; })}
+            {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>{setTab(t.id);setMobileMenuOpen(false);}} style={{display:"block",width:"100%",textAlign:"left",padding:"11px 14px",borderRadius:10,border:"none",cursor:"pointer",fontWeight:700,fontSize:14,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,marginBottom:2}}>{t.icon} {t.label}</button>; })}
           </div>
         )}
       </div>
@@ -1101,12 +1104,15 @@ export default function App() {
         {tab==="content" && <ContentPlan isAdmin={isAdmin} apiGet={apiGet} apiSet={apiSet} isMobile={isMobile}/>}
         {tab==="cautruc" && <CauTruc isMobile={isMobile}/>}
         {tab==="keyrank" && <KeyRank isAdmin={isAdmin} isMobile={isMobile} apiGet={apiGet} apiSet={apiSet}/>}
+        {tab==="social" && <ContentPlanTab Card={Card} SecTitle={SecTitle} isMobile={isMobile}/>}
+        {tab==="dexuat" && <DeXuatTab Card={Card} SecTitle={SecTitle} isMobile={isMobile}/>}
+        {tab==="bieudo" && <BieuDoTab Card={Card} SecTitle={SecTitle} isMobile={isMobile}/>}
       </div>
 
       {/* ── MOBILE BOTTOM NAV ── */}
       {isMobile&&(
         <div style={{position:"fixed",bottom:0,left:0,right:0,background:C.white,borderTop:`1px solid ${C.border}`,display:"flex",boxShadow:"0 -4px 20px #40123e14",zIndex:90}}>
-          {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>{if(t.href){window.open(t.href,'_blank')}else{setTab(t.id)}setMobileMenuOpen(false);}} style={{flex:1,padding:"10px 4px",border:"none",cursor:"pointer",fontFamily:"inherit",background:"transparent",color:act?C.purple:C.textMuted,borderTop:act?`2px solid ${C.purple}`:"2px solid transparent",transition:"all .15s"}}>
+          {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>{setTab(t.id);setMobileMenuOpen(false);}} style={{flex:1,padding:"10px 4px",border:"none",cursor:"pointer",fontFamily:"inherit",background:"transparent",color:act?C.purple:C.textMuted,borderTop:act?`2px solid ${C.purple}`:"2px solid transparent",transition:"all .15s"}}>
             <div style={{fontSize:18}}>{t.icon}</div>
             <div style={{fontSize:9,fontWeight:700,marginTop:2}}>{t.label}</div>
           </button>; })}
