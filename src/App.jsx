@@ -1018,7 +1018,7 @@ export default function App() {
     <div style={{fontFamily:"'IBM Plex Sans','Segoe UI',sans-serif",background:"#faf8fa",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
       <div style={{width:52,height:52,borderRadius:14,background:"linear-gradient(135deg,#eec277,#faefdc)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}><img src="/logo.png" alt="GTT" style={{width:36,height:36,objectFit:"contain"}} /></div>
       <div style={{fontSize:16,fontWeight:700,color:"#40123e"}}>Đang tải dữ liệu...</div>
-      <div style={{fontSize:12,color:"#b6b1b7"}}>Gỗ Thanh Thùy Marketing Dashboard</div>
+      <div style={{fontSize:12,color:"#b6b1b7"}}>THANH THUY Marketing Dashboard</div>
     </div>
   );
 
@@ -1033,7 +1033,7 @@ export default function App() {
           <div style={{display:"flex",alignItems:"center",gap:isMobile?10:14}}>
             <div onClick={handleLogoClick} style={{width:isMobile?34:40,height:isMobile?34:40,borderRadius:10,background:`linear-gradient(135deg,${C.gold},${C.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 2px 8px #eec27744",cursor:isAdmin?"default":"pointer",transition:"transform .15s",userSelect:"none"}} title={isAdmin?"🔑 Admin":"Click để đăng nhập admin"}><img src="/logo.png" alt="GTT" style={{width:isMobile?24:28,height:isMobile?24:28,objectFit:"contain"}} /></div>
             <div>
-              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1,fontFamily:"'911 Porscha',cursive"}}>Gỗ Thanh Thùy</div>
+              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1,fontFamily:"'911 Porscha',cursive"}}>THANH THUY</div>
               {!isMobile&&<div style={{fontSize:10,color:`${C.gold}cc`,fontWeight:600,letterSpacing:1,textTransform:"uppercase",fontFamily:"'911 Porscha',cursive"}}>Marketing Dashboard</div>}
             </div>
           </div>
@@ -1143,7 +1143,7 @@ export default function App() {
           <div style={{margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
           <div style={{fontSize:11,color:C.textMuted}}>
             {saveStatus==="saved"&&<span style={{marginRight:8,color:"#2e7d32",fontWeight:700}}>✓ Đã lưu</span>}
-            © {new Date().getFullYear()} Gỗ Thanh Thùy
+            © {new Date().getFullYear()} THANH THUY
             {isAdmin?<span style={{marginLeft:8,background:"#e8f5e9",color:"#2e7d32",padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👑 Admin</span>:<span style={{marginLeft:8,background:C.purpleLight,color:C.purple,padding:"2px 7px",borderRadius:6,fontWeight:700,fontSize:10}}>👁 Viewer</span>}
           </div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
