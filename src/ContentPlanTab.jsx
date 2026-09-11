@@ -119,8 +119,6 @@ export default function ContentPlanTab({ Card, SecTitle, isMobile }) {
   }, []);
 
   const filtered = data.filter((r) => {
-    const dow = getDayOfWeek(r.date);
-    if (dow === 'CN') return false;
     if (filterWeek && getWeek(r.date) !== filterWeek) return false;
     if (filterChannel && !(r.channels || []).includes(filterChannel)) return false;
     if (filterStatus && r.status !== filterStatus) return false;
@@ -290,39 +288,46 @@ export default function ContentPlanTab({ Card, SecTitle, isMobile }) {
                 {groups[w].map((r, i) => {
                   const di = data.indexOf(r);
                   const dow = getDayOfWeek(r.date);
+                  const isSunday = dow === 'CN';
                   const isWeekend = dow === 'Bảy';
                   return (
-                    <tr key={di} style={isWeekend ? { background: '#fdf8f3' } : {}}>
-                      <td style={tdStyleCenter}>{i + 1}</td>
-                      <td style={tdStyle}><input type="date" value={r.date} onChange={e => updateField(di, 'date', e.value)} style={cellInput} /></td>
-                      <td style={{ ...tdStyleCenter, fontWeight: 600, color: '#9d5799' }}>{dow}</td>
+                    <tr key={di} style={isSunday ? { background: '#f0dbef', opacity: 0.6 } : isWeekend ? { background: '#fdf8f3' } : {}}>
+                      <td style={tdStyleCenter}>{isSunday ? '—' : i + 1}</td>
+                      <td style={tdStyle}>{isSunday ? <span style={{ color: '#b6b1b7', fontSize: 11 }}>Nghỉ</span> : <input type="date" value={r.date} onChange={e => updateField(di, 'date', e.value)} style={cellInput} />}</td>
+                      <td style={{ ...tdStyleCenter, fontWeight: 600, color: isSunday ? '#b6b1b7' : '#9d5799' }}>{dow}</td>
                       <td style={tdStyle}>
+                        {isSunday ? <span style={{ color: '#b6b1b7', fontSize: 11 }}>—</span> : (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                           {(r.channels || []).map(ch => (
                             <span key={ch} style={{ background: chColor(ch), color: '#fff', borderRadius: 4, padding: '2px 7px', fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap' }}>{ch}</span>
                           ))}
                         </div>
+                        )}
                       </td>
-                      <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'content', e.target.textContent)} style={{ outline: 'none', minHeight: 18 }}>{r.content}</div></td>
-                      <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'product', e.target.textContent)} style={{ outline: 'none', minHeight: 18 }}>{r.product}</div></td>
-                      <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'reason', e.target.textContent)} style={{ outline: 'none', minHeight: 18, fontSize: 11.5, color: '#69626a' }}>{r.reason}</div></td>
+                      <td style={tdStyle}>{isSunday ? '' : <div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'content', e.target.textContent)} style={{ outline: 'none', minHeight: 18 }}>{r.content}</div>}</td>
+                      <td style={tdStyle}>{isSunday ? '' : <div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'product', e.target.textContent)} style={{ outline: 'none', minHeight: 18 }}>{r.product}</div>}</td>
+                      <td style={tdStyle}>{isSunday ? '' : <div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'reason', e.target.textContent)} style={{ outline: 'none', minHeight: 18, fontSize: 11.5, color: '#69626a' }}>{r.reason}</div>}</td>
                       <td style={tdStyle}>
+                        {isSunday ? '' : (
                         <select value={r.status} onChange={e => updateField(di, 'status', e.value)} style={{ ...cellInput, fontWeight: 600, cursor: 'pointer' }}>
                           {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
+                        )}
                       </td>
                       <td style={tdStyle}>
-                        {r.link ? (
+                        {isSunday ? '' : r.link ? (
                           <a href={r.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#9d5799', textDecoration: 'none', border: '1px solid #9d5799', borderRadius: 4, padding: '2px 6px' }}>🔗 Xem</a>
                         ) : (
                           <input type="text" placeholder="Dán link..." value={r.link || ''} onChange={e => updateField(di, 'link', e.target.value)} style={{ ...cellInput, fontSize: 11, width: 80 }} />
                         )}
                       </td>
                       <td style={{ ...tdStyle, textAlign: 'center' }}>
+                        {isSunday ? '' : (
                         <div style={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
                           <button onClick={() => editRow(di)} title="Sửa" style={rowBtnStyle}>✏️</button>
                           <button onClick={() => deleteRow(di)} title="Xóa" style={{ ...rowBtnStyle, color: '#a83232' }}>🗑</button>
                         </div>
+                        )}
                       </td>
                     </tr>
                   );
