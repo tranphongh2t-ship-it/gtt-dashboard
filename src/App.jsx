@@ -1040,7 +1040,7 @@ export default function App() {
 
           {/* Desktop nav */}
           {!isMobile&&(
-            <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"center"}}>
+            <div style={{display:"flex",gap:0,alignItems:"center",flexWrap:"wrap",justifyContent:"flex-end"}}>
               {TABS.reduce((acc,t)=>{
                 if(!acc.find(a=>a.cat===t.cat))acc.push({cat:t.cat,items:[]});
                 acc.find(a=>a.cat===t.cat).items.push(t);
