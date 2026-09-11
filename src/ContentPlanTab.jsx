@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 const CHANNEL_LIST_INIT = ['Fanpage','Fanpage (Reel)','TikTok','YouTube','Zalo Video','LinkedIn','Website'];
 const CHANNEL_COLORS = {'Fanpage':'#9d5799','Fanpage (Reel)':'#b5502e','TikTok':'#000','YouTube':'#c4302b','Zalo Video':'#0068ff','LinkedIn':'#0077b5','Website':'#2f6b4f'};
@@ -40,49 +40,35 @@ const DEFAULT_DATA = [
   {date:'2026-10-14',channels:['Fanpage','Website'],content:'Tổng kết tháng 9: mã bán tốt + tồn kho có bổ sung kịp không',product:'—',reason:'Đối chiếu kế hoạch vs thực tế kho vận',status:'Chờ duyệt',link:''},
 ];
 
-function getDateRange(data) {
-  if (!data.length) return { min: null, max: null };
-  const dates = data.map(r => new Date(r.date + 'T00:00:00')).filter(d => !isNaN(d));
-  if (!dates.length) return { min: null, max: null };
-  return { min: new Date(Math.min(...dates)), max: new Date(Math.max(...dates)) };
-}
-
-function getWeek(dateStr, data) {
+function getWeek(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
-  const { min } = getDateRange(data);
-  if (!min) return 1;
-  const startOfWeek = new Date(min);
-  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
-  const diffDays = Math.floor((d - startOfWeek) / (7 * 24 * 60 * 60 * 1000));
-  return Math.max(1, diffDays + 1);
+  const day = d.getDay();
+  const monday = new Date(d);
+  monday.setDate(monday.getDate() - ((day + 6) % 7));
+  return monday.toISOString().slice(0, 10);
 }
 
-function getWeekDateRange(w, data) {
-  const { min } = getDateRange(data);
-  if (!min) return '';
-  const startOfWeek = new Date(min);
-  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
-  const weekStart = new Date(startOfWeek);
-  weekStart.setDate(weekStart.getDate() + (w - 1) * 7);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 6);
+function getWeekDateRange(weekKey) {
+  const start = new Date(weekKey + 'T00:00:00');
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
   const fmtShort = (d) => d.getDate() + '/' + (d.getMonth() + 1);
-  return fmtShort(weekStart) + '–' + fmtShort(weekEnd);
+  return fmtShort(start) + '–' + fmtShort(end);
 }
 
 function getAllWeeks(data) {
-  const weeks = new Set();
-  data.forEach(r => weeks.add(getWeek(r.date, data)));
-  return [...weeks].sort((a, b) => a - b);
+  const weekMap = {};
+  data.forEach(r => {
+    const w = getWeek(r.date);
+    if (!weekMap[w]) weekMap[w] = [];
+    weekMap[w].push(r.date);
+  });
+  return Object.keys(weekMap).sort();
 }
 
 function getDayOfWeek(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return DAYS_VN[d.getDay()];
-}
-
-function getWeekLabel(w, data) {
-  return 'Tuần ' + w + ' (' + getWeekDateRange(w, data) + ')';
 }
 
 export default function ContentPlanTab({ Card, SecTitle, isMobile }) {
@@ -133,7 +119,9 @@ export default function ContentPlanTab({ Card, SecTitle, isMobile }) {
   }, []);
 
   const filtered = data.filter((r) => {
-    if (filterWeek && getWeek(r.date, data) !== Number(filterWeek)) return false;
+    const dow = getDayOfWeek(r.date);
+    if (dow === 'CN') return false;
+    if (filterWeek && getWeek(r.date) !== filterWeek) return false;
     if (filterChannel && !(r.channels || []).includes(filterChannel)) return false;
     if (filterStatus && r.status !== filterStatus) return false;
     if (filterSearch && !(r.content + r.product + r.reason).toLowerCase().includes(filterSearch.toLowerCase())) return false;
@@ -142,12 +130,12 @@ export default function ContentPlanTab({ Card, SecTitle, isMobile }) {
 
   const groups = {};
   filtered.forEach(r => {
-    const w = getWeek(r.date, data);
+    const w = getWeek(r.date);
     if (!groups[w]) groups[w] = [];
     groups[w].push(r);
   });
 
-  const allWeeks = getAllWeeks(data);
+  const allWeeks = getAllWeeks(data).filter(w => groups[w]);
 
   const stats = { total: data.length, 'Chờ duyệt': 0, 'Đã duyệt': 0, 'Đã đăng': 0, 'Hủy': 0 };
   data.forEach(r => { if (stats[r.status] !== undefined) stats[r.status]++; });
@@ -258,7 +246,7 @@ export default function ContentPlanTab({ Card, SecTitle, isMobile }) {
           <label style={{ fontSize: 11, color: '#69626a', fontWeight: 600 }}>Tuần:</label>
           <select value={filterWeek} onChange={e => setFilterWeek(e.target.value)} style={{ padding: '5px 8px', border: '1px solid #e6ddd0', borderRadius: 5, fontSize: 12 }}>
             <option value="">Tất cả</option>
-            {allWeeks.map(w => <option key={w} value={w}>{getWeekLabel(w, data)}</option>)}
+            {getAllWeeks(data).map(w => <option key={w} value={w}>Tuần {getWeekDateRange(w)}</option>)}
           </select>
           <label style={{ fontSize: 11, color: '#69626a', fontWeight: 600 }}>Kênh:</label>
           <select value={filterChannel} onChange={e => setFilterChannel(e.target.value)} style={{ padding: '5px 8px', border: '1px solid #e6ddd0', borderRadius: 5, fontSize: 12 }}>
@@ -292,46 +280,55 @@ export default function ContentPlanTab({ Card, SecTitle, isMobile }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r, i) => {
-              const di = data.indexOf(r);
-              const dow = getDayOfWeek(r.date);
-              const isWeekend = dow === 'Bảy' || dow === 'CN';
-              return (
-                <tr key={di} style={isWeekend ? { background: '#fdf8f3' } : {}}>
-                  <td style={tdStyleCenter}>{i + 1}</td>
-                  <td style={tdStyle}><input type="date" value={r.date} onChange={e => updateField(di, 'date', e.value)} style={cellInput} /></td>
-                  <td style={{ ...tdStyleCenter, fontWeight: 600, color: '#9d5799' }}>{dow}</td>
-                  <td style={tdStyle}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                      {(r.channels || []).map(ch => (
-                        <span key={ch} style={{ background: chColor(ch), color: '#fff', borderRadius: 4, padding: '2px 7px', fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap' }}>{ch}</span>
-                      ))}
-                    </div>
-                  </td>
-                  <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'content', e.target.textContent)} style={{ outline: 'none', minHeight: 18 }}>{r.content}</div></td>
-                  <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'product', e.target.textContent)} style={{ outline: 'none', minHeight: 18 }}>{r.product}</div></td>
-                  <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'reason', e.target.textContent)} style={{ outline: 'none', minHeight: 18, fontSize: 11.5, color: '#69626a' }}>{r.reason}</div></td>
-                  <td style={tdStyle}>
-                    <select value={r.status} onChange={e => updateField(di, 'status', e.value)} style={{ ...cellInput, fontWeight: 600, cursor: 'pointer' }}>
-                      {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </td>
-                  <td style={tdStyle}>
-                    {r.link ? (
-                      <a href={r.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#9d5799', textDecoration: 'none', border: '1px solid #9d5799', borderRadius: 4, padding: '2px 6px' }}>🔗 Xem</a>
-                    ) : (
-                      <input type="text" placeholder="Dán link..." value={r.link || ''} onChange={e => updateField(di, 'link', e.target.value)} style={{ ...cellInput, fontSize: 11, width: 80 }} />
-                    )}
-                  </td>
-                  <td style={{ ...tdStyle, textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
-                      <button onClick={() => editRow(di)} title="Sửa" style={rowBtnStyle}>✏️</button>
-                      <button onClick={() => deleteRow(di)} title="Xóa" style={{ ...rowBtnStyle, color: '#a83232' }}>🗑</button>
-                    </div>
+            {allWeeks.map(w => (
+              <React.Fragment key={w}>
+                <tr>
+                  <td colSpan={10} style={{ background: '#f0dbef', padding: '6px 10px', fontWeight: 700, fontSize: 12, color: '#40123e', borderTop: '2px solid #9d5799' }}>
+                    📅 Tuần {getWeekDateRange(w)}
                   </td>
                 </tr>
-              );
-            })}
+                {groups[w].map((r, i) => {
+                  const di = data.indexOf(r);
+                  const dow = getDayOfWeek(r.date);
+                  const isWeekend = dow === 'Bảy';
+                  return (
+                    <tr key={di} style={isWeekend ? { background: '#fdf8f3' } : {}}>
+                      <td style={tdStyleCenter}>{i + 1}</td>
+                      <td style={tdStyle}><input type="date" value={r.date} onChange={e => updateField(di, 'date', e.value)} style={cellInput} /></td>
+                      <td style={{ ...tdStyleCenter, fontWeight: 600, color: '#9d5799' }}>{dow}</td>
+                      <td style={tdStyle}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                          {(r.channels || []).map(ch => (
+                            <span key={ch} style={{ background: chColor(ch), color: '#fff', borderRadius: 4, padding: '2px 7px', fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap' }}>{ch}</span>
+                          ))}
+                        </div>
+                      </td>
+                      <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'content', e.target.textContent)} style={{ outline: 'none', minHeight: 18 }}>{r.content}</div></td>
+                      <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'product', e.target.textContent)} style={{ outline: 'none', minHeight: 18 }}>{r.product}</div></td>
+                      <td style={tdStyle}><div contentEditable suppressContentEditableWarning onBlur={e => updateField(di, 'reason', e.target.textContent)} style={{ outline: 'none', minHeight: 18, fontSize: 11.5, color: '#69626a' }}>{r.reason}</div></td>
+                      <td style={tdStyle}>
+                        <select value={r.status} onChange={e => updateField(di, 'status', e.value)} style={{ ...cellInput, fontWeight: 600, cursor: 'pointer' }}>
+                          {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </td>
+                      <td style={tdStyle}>
+                        {r.link ? (
+                          <a href={r.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#9d5799', textDecoration: 'none', border: '1px solid #9d5799', borderRadius: 4, padding: '2px 6px' }}>🔗 Xem</a>
+                        ) : (
+                          <input type="text" placeholder="Dán link..." value={r.link || ''} onChange={e => updateField(di, 'link', e.target.value)} style={{ ...cellInput, fontSize: 11, width: 80 }} />
+                        )}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
+                          <button onClick={() => editRow(di)} title="Sửa" style={rowBtnStyle}>✏️</button>
+                          <button onClick={() => deleteRow(di)} title="Xóa" style={{ ...rowBtnStyle, color: '#a83232' }}>🗑</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </React.Fragment>
+            ))}
           </tbody>
         </table>
       </Card>
