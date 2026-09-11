@@ -1027,7 +1027,7 @@ export default function App() {
 
       {/* ── HEADER ── */}
       <div style={{background:`linear-gradient(135deg,${C.purple} 0%,#6b1f68 60%,${C.purpleMid} 100%)`,boxShadow:"0 4px 24px #40123e33",position:"sticky",top:0,zIndex:100}}>
-        <div style={{maxWidth:1400,margin:"0 auto",padding:isMobile?"0 14px":"0 24px",display:"flex",justifyContent:"space-between",alignItems:"center",height:isMobile?56:64}}>
+        <div style={{margin:"0 auto",padding:isMobile?"0 14px":"0 24px",display:"flex",justifyContent:"space-between",alignItems:"center",height:isMobile?56:64}}>
 
           {/* Brand */}
           <div style={{display:"flex",alignItems:"center",gap:isMobile?10:14}}>
@@ -1071,7 +1071,7 @@ export default function App() {
       {/* ── MONTH BAR ── */}
       {(tab==="dashboard"||tab==="charts")&&(
         <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:isMobile?"10px 14px":"12px 24px",overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
-          <div style={{maxWidth:1400,margin:"0 auto",display:"flex",alignItems:"center",gap:8,flexWrap:isMobile?"nowrap":"wrap",minWidth:"max-content"}}>
+          <div style={{margin:"0 auto",display:"flex",alignItems:"center",gap:8,flexWrap:isMobile?"nowrap":"wrap",minWidth:"max-content"}}>
             <span style={{fontSize:11,color:C.textMuted,fontWeight:700,textTransform:"uppercase",letterSpacing:.5,marginRight:4,flexShrink:0}}>Tháng:</span>
             {dataMonths.map(m=>{ const act=selMonth===m; return <button key={m} onClick={()=>setSelMonth(m)} style={{padding:isMobile?"5px 10px":"6px 14px",borderRadius:8,border:"none",cursor:"pointer",fontSize:isMobile?11:12,fontWeight:700,fontFamily:"inherit",background:act?`linear-gradient(135deg,${C.purple},${C.purpleMid})`:C.offWhite,color:act?C.white:C.textSub,flexShrink:0,whiteSpace:"nowrap"}}>{ML[m]}</button>; })}
             {prevMonth&&<span style={{fontSize:10,color:C.textMuted,flexShrink:0,marginLeft:4}}>↩ {ML[prevMonth]}</span>}
@@ -1080,7 +1080,7 @@ export default function App() {
       )}
 
       {/* ── BODY ── */}
-      <div style={{maxWidth:1400,margin:"0 auto",padding:isMobile?"12px 12px 80px":"24px 20px 40px"}}>
+      <div style={{margin:"0 auto",padding:isMobile?"12px 12px 80px":"24px 20px 40px"}}>
 
         {tab==="dashboard"&&(
           <div>
@@ -1121,7 +1121,7 @@ export default function App() {
 
       {/* ── FOOTER ── */}
       <div style={{borderTop:`1px solid ${C.border}`,background:C.white,padding:isMobile?"10px 14px":"14px 24px"}}>
-        <div style={{maxWidth:1400,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+          <div style={{margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
           <div style={{fontSize:11,color:C.textMuted}}>
             {saveStatus==="saved"&&<span style={{marginRight:8,color:"#2e7d32",fontWeight:700}}>✓ Đã lưu</span>}
             © {new Date().getFullYear()} Gỗ Thanh Thùy
