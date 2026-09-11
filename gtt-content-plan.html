@@ -264,7 +264,45 @@ const DAYS_VN = ['CN','Hai','Ba','Tư','Năm','Sáu','Bảy'];
 
 function chColor(c){return CHANNEL_COLORS[c]||'var(--dark)'}
 
-const defaultData = [];
+const defaultData = [
+  // ===== TUẦN 1 =====
+  {date:'2026-09-15',channels:['Fanpage','Website'],content:'Pillar: "70% doanh số Thanh Thùy đến từ ván kháng ẩm — vì sao khách vẫn chọn dù mùa nào?"',product:'Kháng ẩm (tổng quan)',reason:'Dùng số liệu cả năm (70,8%) thay vì chỉ 3 tháng, mạnh hơn',status:'Chờ duyệt',link:''},
+  {date:'2026-09-16',channels:['Fanpage (Reel)'],content:'Reel "khách đang chọn gì" — nhắc nhanh 388 SN / 611 SN',product:'388 SN, 611 SN',reason:'Tồn kho 3,0 và 4,2 tuần — đủ an toàn cho 1 reel ngắn',status:'Chờ duyệt',link:''},
+  {date:'2026-09-17',channels:['Fanpage'],content:'Ảnh + review khách hàng thật',product:'Thương hiệu chung',reason:'Không gắn mã cụ thể — tận dụng review có sẵn',status:'Chờ duyệt',link:''},
+  {date:'2026-09-18',channels:['Fanpage (Reel)','TikTok'],content:'Reel "3 tông màu dẫn đầu xu hướng nội thất 2026: be, kem, xám ấm" — giới thiệu CHÌ T, LATTE T, KEM SH/T',product:'CHÌ T, LATTE T, KEM SH, KEM T',reason:'TRỌNG TÂM ĐẨY CHÍNH — hội tụ cả doanh số, tồn kho 2,6–4,0 tuần, và khớp xu hướng màu 2026',status:'Chờ duyệt',link:''},
+  {date:'2026-09-19',channels:['Fanpage'],content:'Ảnh showroom, nội dung nhẹ cuối tuần',product:'—',reason:'Khách B2B ít quyết định cuối tuần',status:'Chờ duyệt',link:''},
+  {date:'2026-09-20',channels:['Fanpage','Website'],content:'Bài SEO: "Tông màu nội thất 2026 và mã kháng ẩm tương ứng tại Thanh Thùy"',product:'CHÌ T, LATTE T, KEM SH/T, 682 MW',reason:'Bài SEO dài, kết nối nghiên cứu xu hướng thật với sản phẩm có tồn kho tốt (3,8–4,0 tuần)',status:'Chờ duyệt',link:''},
+  {date:'2026-09-21',channels:['Fanpage'],content:'Mini-poll: "Tông màu nào bạn thấy hợp xu hướng 2026 nhất?"',product:'Nhóm mã xu hướng',reason:'Thu thập insight, định hướng tuần 2',status:'Chờ duyệt',link:''},
+
+  // ===== TUẦN 2 =====
+  {date:'2026-09-22',channels:['Fanpage','Website'],content:'Bài "Vì sao tông be/kem/xám ấm đang chiếm lĩnh thiết kế nội thất 2026"',product:'KEM SH/T, LATTE T, CHÌ T',reason:'Trọng tâm đẩy — nội dung giáo dục xu hướng, dẫn tới sản phẩm cụ thể còn hàng tốt',status:'Chờ duyệt',link:''},
+  {date:'2026-09-23',channels:['Fanpage (Reel)'],content:'Reel cận cảnh mã 01 G — tồn kho tốt nhất nhóm (6,7 tuần)',product:'01 G',reason:'Ưu tiên cho boost quảng cáo — mã an toàn nhất để tăng ngân sách',status:'Chờ duyệt',link:''},
+  {date:'2026-09-24',channels:['Fanpage'],content:'Teaser Trung Thu, sáng tạo nhẹ từ vật liệu dư',product:'—',reason:'Chuyển nhịp sang lễ hội',status:'Chờ duyệt',link:''},
+  {date:'2026-09-25',channels:['Fanpage'],content:'Chúc Trung Thu, gắn kết — KHÔNG BÁN HÀNG',product:'—',reason:'Ưu tiên thiện cảm dài hạn',status:'Chờ duyệt',link:''},
+  {date:'2026-09-26',channels:['Fanpage (Reel)'],content:'Reel mã 503 WN — tồn kho Durabo tốt nhất (11,6 tuần)',product:'Durabo 503 WN',reason:'An toàn nhất trong nhóm Durabo để làm nội dung sâu hơn',status:'Chờ duyệt',link:''},
+  {date:'2026-09-27',channels:['Fanpage'],content:'Album công trình dùng 682 MW / 503 MM',product:'682 MW, 503 MM',reason:'Tồn kho 3,6–3,8 tuần — an toàn, case study cho nhóm cần thêm nhận biết',status:'Chờ duyệt',link:''},
+  {date:'2026-09-28',channels:['Fanpage'],content:'Q&A: "Mã nào có sẵn để giao ngay?"',product:'Nhóm mã tồn kho tốt (loại 209 SN)',reason:'Chủ động thông báo 209 SN KHÔNG còn hàng',status:'Chờ duyệt',link:''},
+
+  // ===== TUẦN 3 =====
+  {date:'2026-09-29',channels:['Fanpage','Website'],content:'"3 lựa chọn Ván Nhựa Durabo đang có sẵn cho khu vực siêu ẩm"',product:'388 WN-ES, 388 T LE, 503 WN',reason:'Trọng tâm đẩy phụ — CHỈ 3 mã còn hàng tốt (7,9–11,6 tuần)',status:'Chờ duyệt',link:''},
+  {date:'2026-09-30',channels:['Fanpage','Website'],content:'Infographic kỹ thuật: Kháng ẩm LMR/MMR/HMR khác nhau thế nào',product:'Kháng ẩm (kỹ thuật)',reason:'Phục vụ mọi mã, không thiên vị SKU nào',status:'Chờ duyệt',link:''},
+  {date:'2026-10-01',channels:['Fanpage'],content:'Case study trước/sau Durabo 388 T LE',product:'Durabo 388 T LE',reason:'Tồn kho 9,1 tuần — an toàn',status:'Chờ duyệt',link:''},
+  {date:'2026-10-02',channels:['Fanpage'],content:'Case study dự án Durabo (chỉ 3 mã còn hàng)',product:'388 WN-ES, 388 T LE, 503 WN',reason:'Bài case study, SEO tốt',status:'Chờ duyệt',link:''},
+  {date:'2026-10-03',channels:['Fanpage'],content:'Ưu đãi "nhóm màu xu hướng + Durabo còn hàng"',product:'Nhóm xu hướng + 3 mã Durabo an toàn',reason:'Ưu đãi có kiểm soát tồn kho rõ ràng',status:'Chờ duyệt',link:''},
+  {date:'2026-10-04',channels:['Website'],content:'Công cụ tính khối lượng ván kháng ẩm cho 1 bộ tủ bếp',product:'Kháng ẩm (mọi mã)',reason:'Giữ chân khách kỹ thuật, không thiên vị mã',status:'Chờ duyệt',link:''},
+  {date:'2026-10-05',channels:['Fanpage'],content:'Hậu trường đóng gói, kiểm hàng',product:'Vận hành/kho',reason:'Dịp tự nhiên để nội bộ rà soát lại tồn kho',status:'Chờ duyệt',link:''},
+
+  // ===== TUẦN 4 =====
+  {date:'2026-10-06',channels:['Fanpage','Website'],content:'"Deadline đặt hàng sỉ tháng 9 — các lựa chọn còn hàng cho mùa cao điểm"',product:'Mã còn tồn kho tốt (loại 209 SN, Durabo hết hàng)',reason:'Thông điệp deadline theo danh mục thực tế',status:'Chờ duyệt',link:''},
+  {date:'2026-10-07',channels:['Fanpage'],content:'Đếm ngược ưu đãi',product:'Cùng danh mục trên',reason:'Nhắc lại',status:'Chờ duyệt',link:''},
+  {date:'2026-10-08',channels:['Fanpage (Reel)','TikTok','YouTube'],content:'Reel "Top mã khách hỏi nhiều nhất tháng 9 — còn hàng đủ để đặt ngay"',product:'Nhóm xu hướng + top 3 bằng chứng',reason:'Social proof kết hợp xác nhận tồn kho',status:'Chờ duyệt',link:''},
+  {date:'2026-10-09',channels:['Fanpage'],content:'Giới thiệu Chỉ nẹp đi kèm (17,8 tuần tồn kho — an toàn upsell)',product:'Chỉ nẹp',reason:'Không lo hết hàng, upsell tự do',status:'Chờ duyệt',link:''},
+  {date:'2026-10-10',channels:['Fanpage'],content:'Kho hàng + "giao 24h" — chỉ mã đã xác nhận tồn kho',product:'Kháng ẩm (nhóm tồn kho tốt)',reason:'Tránh hứa hẹn với Durabo đang thiếu hàng',status:'Chờ duyệt',link:''},
+  {date:'2026-10-11',channels:['Website'],content:'"Tháng 10 — mùa khô quay lại, chuyển trọng tâm sang Melamine Thường"',product:'Kháng ẩm → Thường',reason:'Chuẩn bị nhịp chuyển mùa + báo cáo kho vận',status:'Chờ duyệt',link:''},
+  {date:'2026-10-12',channels:['Fanpage'],content:'Tổng hợp review khách hàng tháng qua',product:'Thương hiệu chung',reason:'Củng cố uy tín trước tháng 10 cao điểm',status:'Chờ duyệt',link:''},
+  {date:'2026-10-13',channels:['Fanpage'],content:'Ưu đãi mới cho tháng 10',product:'Kháng ẩm + Thường',reason:'Duy trì đà chuyển đổi',status:'Chờ duyệt',link:''},
+  {date:'2026-10-14',channels:['Fanpage','Website'],content:'Tổng kết tháng 9: mã bán tốt + tồn kho có bổ sung kịp không',product:'—',reason:'Đối chiếu kế hoạch vs thực tế kho vận',status:'Chờ duyệt',link:''},
+];
 
 // ==================== STATE ====================
 let planData = [];
