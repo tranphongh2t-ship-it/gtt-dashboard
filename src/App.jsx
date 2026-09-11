@@ -1040,20 +1040,25 @@ export default function App() {
 
           {/* Desktop nav */}
           {!isMobile&&(
-            <div style={{display:"flex",gap:0,alignItems:"center"}}>
+            <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"center"}}>
               {TABS.reduce((acc,t)=>{
                 if(!acc.find(a=>a.cat===t.cat))acc.push({cat:t.cat,items:[]});
                 acc.find(a=>a.cat===t.cat).items.push(t);
                 return acc;
               },[]).map((g,gi)=>{
-                const catColor={gold:"#eec277",seo:"#9d5799",cv:"#f0dbef",dx:"#faefdc"};
-                const colors={gold:"#eec277",seo:"#b06daa",cv:"#f0a8d0",dx:"#eec277"};
-                const c=colors[g.cat]||"#eec277";
+                const catC={gold:"#eec277",seo:"#b06daa",cv:"#f0a8d0",dx:"#eec277"};
+                const tabC={
+                  "Data Analytics":["#eec277","#d4a04a","#b8944f"],
+                  "SEO":["#b06daa","#9d5799","#8a4f86"],
+                  "Công Việc":["#f0a8d0","#e88fbe","#d473a8"],
+                  "Đề xuất":["#eec277","#d4a04a","#b8944f"],
+                };
+                const c=catC[g.cat]||"#eec277";
                 return (
                 <div key={g.cat} style={{display:"flex",alignItems:"center",gap:1}}>
                   {gi>0&&<span style={{color:"rgba(255,255,255,0.2)",margin:"0 6px",fontSize:11}}>|</span>}
                   <span style={{fontSize:9,color:c,fontWeight:700,textTransform:"uppercase",letterSpacing:.8,marginRight:4,whiteSpace:"nowrap",opacity:.8}}>{g.cat}</span>
-                  {g.items.map(t=>{const act=tab===t.id;return <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"6px 12px",borderRadius:6,border:"none",cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"inherit",background:act?`${c}22`:"transparent",color:act?c:C.purpleLight,borderBottom:act?`2px solid ${c}`:"2px solid transparent",transition:"all .15s",whiteSpace:"nowrap"}}>{t.icon} {t.label}</button>})}
+                  {g.items.map((t,ti)=>{const act=tab===t.id;const tc=tabC[g.cat]?.[ti]||c;return <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"6px 12px",borderRadius:6,border:"none",cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"inherit",background:act?`${tc}22`:"transparent",color:act?tc:C.purpleLight,borderBottom:act?`2px solid ${tc}`:"2px solid transparent",transition:"all .15s",whiteSpace:"nowrap"}}>{t.icon} {t.label}</button>})}
                 </div>
                 );
               })}
@@ -1083,12 +1088,18 @@ export default function App() {
               acc.find(a=>a.cat===t.cat).items.push(t);
               return acc;
             },[]).map(g=>{
-              const colors={gold:"#eec277",seo:"#b06daa",cv:"#f0a8d0",dx:"#eec277"};
-              const c=colors[g.cat]||"#eec277";
+              const catC={gold:"#eec277",seo:"#b06daa",cv:"#f0a8d0",dx:"#eec277"};
+              const tabC={
+                "Data Analytics":["#eec277","#d4a04a","#b8944f"],
+                "SEO":["#b06daa","#9d5799","#8a4f86"],
+                "Công Việc":["#f0a8d0","#e88fbe","#d473a8"],
+                "Đề xuất":["#eec277","#d4a04a","#b8944f"],
+              };
+              const c=catC[g.cat]||"#eec277";
               return (
               <div key={g.cat} style={{marginBottom:8}}>
                 <div style={{fontSize:9,color:c,fontWeight:700,textTransform:"uppercase",letterSpacing:1,padding:"4px 0 2px",opacity:.8}}>{g.cat}</div>
-                {g.items.map(t=>{const act=tab===t.id;return <button key={t.id} onClick={()=>{setTab(t.id);setMobileMenuOpen(false);}} style={{display:"block",width:"100%",textAlign:"left",padding:"9px 12px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,fontFamily:"inherit",background:act?`${c}22`:"transparent",color:act?c:C.purpleLight,marginBottom:2}}>{t.icon} {t.label}</button>})}
+                {g.items.map((t,ti)=>{const act=tab===t.id;const tc=tabC[g.cat]?.[ti]||c;return <button key={t.id} onClick={()=>{setTab(t.id);setMobileMenuOpen(false);}} style={{display:"block",width:"100%",textAlign:"left",padding:"9px 12px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,fontFamily:"inherit",background:act?`${tc}22`:"transparent",color:act?tc:C.purpleLight,marginBottom:2}}>{t.icon} {t.label}</button>})}
               </div>
               );
             })}
