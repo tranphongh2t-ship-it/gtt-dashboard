@@ -44,7 +44,7 @@ function Card({head,headColor="teal",children}){
 }
 
 function SecTitle({children}){
-  return <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:15,fontWeight:800,color:C.purple,margin:"18px 0 12px",paddingBottom:8,borderBottom:`2px solid ${C.purpleLight}`,display:"flex",alignItems:"center",gap:8}}>{children}</div>;
+  return <div style={{fontSize:15,fontWeight:800,color:C.purple,margin:"18px 0 12px",paddingBottom:8,borderBottom:`2px solid ${C.purpleLight}`,display:"flex",alignItems:"center",gap:8}}>{children}</div>;
 }
 
 function RuleTable({rows}){
@@ -443,7 +443,7 @@ export default function CauTruc({isMobile}){
     <div>
       {/* Header */}
       <div style={{background:"linear-gradient(135deg,#1a3c2e,#2d6a4f)",borderRadius:14,padding:isMobile?"14px 16px":"18px 24px",marginBottom:16,boxShadow:"0 4px 16px #1a3c2e33"}}>
-        <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:isMobile?15:20,fontWeight:900,color:"#ffffff",marginBottom:6}}>🌲 Cấu Trúc Danh Mục & Thẻ – Gỗ Thanh Thùy</div>
+        <div style={{fontSize:isMobile?15:20,fontWeight:900,color:"#ffffff",marginBottom:6}}>🌲 Cấu Trúc Danh Mục & Thẻ – Gỗ Thanh Thùy</div>
         <div style={{fontSize:12,color:"rgba(255,255,255,.7)",marginBottom:14}}>Hệ thống phân loại chuẩn SEO cho 2 khu vực: Bài viết Blog & Trang Sản phẩm · 521 bài · 36 tháng</div>
         <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
           {[{n:5,l:"DM bài viết cha"},{n:6,l:"DM sản phẩm cha"},{n:9,l:"Nhóm thẻ bài viết"},{n:10,l:"Nhóm thẻ sản phẩm"},{n:"~80",l:"Tổng số thẻ"}].map(s=>(

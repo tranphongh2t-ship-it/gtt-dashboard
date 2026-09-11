@@ -197,7 +197,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
       <div style={{background:"linear-gradient(135deg,#1e40af,#1d4ed8,#3b82f6)",borderRadius:14,padding:isMobile?"14px 16px":"18px 24px",marginBottom:16,boxShadow:"0 4px 16px #1e40af33"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:12}}>
           <div>
-            <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:isMobile?15:20,fontWeight:900,color:C.white}}>📊 Theo Dõi Thứ Hạng Từ Khóa</div>
+            <div style={{fontSize:isMobile?15:20,fontWeight:900,color:C.white}}>📊 Theo Dõi Thứ Hạng Từ Khóa</div>
             <div style={{fontSize:11,color:"rgba(255,255,255,.65)",marginTop:2}}>Ranking · SERP Analysis · key-rank.com</div>
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
@@ -384,7 +384,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
         <div style={{position:"fixed",inset:0,background:"#00000077",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}
           onClick={e=>e.target===e.currentTarget&&setEditKw(null)}>
           <div style={{background:C.white,borderRadius:16,padding:isMobile?20:28,width:"100%",maxWidth:400,boxShadow:"0 20px 60px #00000030"}}>
-            <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:15,fontWeight:800,color:C.textMain,marginBottom:16}}>{editKw==="new"?"➕ Thêm từ khóa mới":"✎ Sửa từ khóa"}</div>
+            <div style={{fontSize:15,fontWeight:800,color:C.textMain,marginBottom:16}}>{editKw==="new"?"➕ Thêm từ khóa mới":"✎ Sửa từ khóa"}</div>
             <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
               <div><label style={{fontSize:10,color:C.textSub,fontWeight:700,display:"block",marginBottom:4,textTransform:"uppercase"}}>Từ khóa *</label>
                 <input style={inp} placeholder="gỗ công nghiệp là gì" value={kwForm.keyword} onChange={e=>setKwForm(f=>({...f,keyword:e.target.value}))}/></div>
@@ -406,7 +406,7 @@ export default function KeyRank({isAdmin, isMobile, apiGet, apiSet}){
         <div style={{position:"fixed",inset:0,background:"#00000077",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}
           onClick={e=>e.target===e.currentTarget&&setEditPage(null)}>
           <div style={{background:C.white,borderRadius:16,padding:isMobile?20:28,width:"100%",maxWidth:480,boxShadow:"0 20px 60px #00000030"}}>
-            <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:15,fontWeight:800,color:C.textMain,marginBottom:16}}>{editPage==="new"?"➕ Thêm URL trang":"✎ Sửa trang"}</div>
+            <div style={{fontSize:15,fontWeight:800,color:C.textMain,marginBottom:16}}>{editPage==="new"?"➕ Thêm URL trang":"✎ Sửa trang"}</div>
             <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
               <div><label style={{fontSize:10,color:C.textSub,fontWeight:700,display:"block",marginBottom:4,textTransform:"uppercase"}}>URL *</label>
                 <input style={inp} placeholder="https://gothanhthuy.com/kien-thuc/go-cong-nghiep-la-gi/" value={pageForm.url} onChange={e=>setPageForm(f=>({...f,url:e.target.value}))}/></div>

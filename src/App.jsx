@@ -392,7 +392,7 @@ export default function App() {
     <div style={{background:C.cardBg,borderRadius:isMobile?12:16,border:`1px solid ${C.border}`,padding:isMobile?14:22,marginBottom:isMobile?12:18,boxShadow:"0 2px 12px #40123e0a",...style}}>{children}</div>
   ), [isMobile]);
   const SecTitle = useMemo(() => ({children}) => (
-    <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:isMobile?10:11,fontWeight:800,color:C.purpleMid,marginBottom:isMobile?10:16,textTransform:"uppercase",letterSpacing:1.5,display:"flex",alignItems:"center",gap:8}}>
+    <div style={{fontSize:isMobile?10:11,fontWeight:800,color:C.purpleMid,marginBottom:isMobile?10:16,textTransform:"uppercase",letterSpacing:1.5,display:"flex",alignItems:"center",gap:8}}>
       <span style={{display:"inline-block",width:3,height:14,background:`linear-gradient(180deg,${C.purple},${C.purpleMid})`,borderRadius:2}}/>
       {children}
     </div>
@@ -411,7 +411,7 @@ export default function App() {
       <Card>
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,paddingBottom:12,borderBottom:`1px solid ${C.border}`}}>
           <div style={{width:isMobile?36:42,height:isMobile?36:42,borderRadius:10,background:`${p.color}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?18:20,border:`1px solid ${p.color}25`,flexShrink:0}}>{p.icon}</div>
-          <span style={{fontFamily:"'Arsenal',sans-serif",fontSize:isMobile?14:17,fontWeight:800,color:C.textMain}}>{p.label}</span>
+          <span style={{fontSize:isMobile?14:17,fontWeight:800,color:C.textMain}}>{p.label}</span>
           {isAdmin&&(
             <button onClick={()=>goInput(platform)} style={{marginLeft:"auto",padding:isMobile?"5px 10px":"6px 14px",borderRadius:8,border:`1px solid ${C.purpleMid}`,background:"transparent",color:C.purpleMid,fontSize:isMobile?11:12,fontWeight:700,cursor:"pointer",flexShrink:0}}>✎ Nhập</button>
           )}
@@ -524,7 +524,7 @@ export default function App() {
           <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:18}}>
             <div style={{width:38,height:38,borderRadius:10,background:`${PM[editPlat].color}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{PM[editPlat].icon}</div>
             <div>
-              <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:isMobile?14:16,fontWeight:800,color:C.textMain}}>{PM[editPlat].label}</div>
+              <div style={{fontSize:isMobile?14:16,fontWeight:800,color:C.textMain}}>{PM[editPlat].label}</div>
               <div style={{fontSize:11,color:C.textSub}}>{ML[editMonth]||editMonth}</div>
             </div>
           </div>
@@ -1009,15 +1009,15 @@ export default function App() {
 
   // ── RENDER ──
   if (loading) return (
-    <div style={{fontFamily:"'Inter',sans-serif",background:"#faf8fa",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
-      <div style={{width:52,height:52,borderRadius:14,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}><img src="/logo.png" alt="Thanh Thùy" style={{width:"100%",height:"100%",objectFit:"contain"}} /></div>
+    <div style={{fontFamily:"'IBM Plex Sans','Segoe UI',sans-serif",background:"#faf8fa",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
+      <div style={{width:52,height:52,borderRadius:14,background:"linear-gradient(135deg,#eec277,#faefdc)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26}}>🌲</div>
       <div style={{fontSize:16,fontWeight:700,color:"#40123e"}}>Đang tải dữ liệu...</div>
       <div style={{fontSize:12,color:"#b6b1b7"}}>Gỗ Thanh Thùy Marketing Dashboard</div>
     </div>
   );
 
   return (
-    <div style={{fontFamily:"'Inter',sans-serif",background:C.bg,minHeight:"100vh",color:C.textMain}}>
+    <div style={{fontFamily:"'IBM Plex Sans','Segoe UI',sans-serif",background:C.bg,minHeight:"100vh",color:C.textMain}}>
 
       {/* ── HEADER ── */}
       <div style={{background:`linear-gradient(135deg,${C.purple} 0%,#6b1f68 60%,${C.purpleMid} 100%)`,boxShadow:"0 4px 24px #40123e33",position:"sticky",top:0,zIndex:100}}>
@@ -1025,9 +1025,9 @@ export default function App() {
 
           {/* Brand */}
           <div style={{display:"flex",alignItems:"center",gap:isMobile?10:14}}>
-            <div onClick={handleLogoClick} style={{width:isMobile?38:44,height:isMobile?38:44,borderRadius:10,overflow:"hidden",flexShrink:0,boxShadow:"0 2px 8px #eec27744",cursor:isAdmin?"default":"pointer",transition:"transform .15s",userSelect:"none",background:"transparent"}} title={isAdmin?"🔑 Admin":"Click để đăng nhập admin"}><img src="/logo.png" alt="Thanh Thùy" style={{width:"100%",height:"100%",objectFit:"contain"}} /></div>
+            <div onClick={handleLogoClick} style={{width:isMobile?34:40,height:isMobile?34:40,borderRadius:10,background:`linear-gradient(135deg,${C.gold},${C.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:isMobile?17:20,flexShrink:0,boxShadow:"0 2px 8px #eec27744",cursor:isAdmin?"default":"pointer",transition:"transform .15s",userSelect:"none"}} title={isAdmin?"🔑 Admin":"Click để đăng nhập admin"}>🌲</div>
             <div>
-              <div style={{fontFamily:"'Arsenal',sans-serif",fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1}}>Gỗ Thanh Thùy</div>
+              <div style={{fontSize:isMobile?14:18,fontWeight:900,color:C.white,letterSpacing:-.3,lineHeight:1.1}}>Gỗ Thanh Thùy</div>
               {!isMobile&&<div style={{fontSize:10,color:`${C.gold}cc`,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Marketing Dashboard</div>}
             </div>
           </div>
