@@ -207,17 +207,17 @@ export default function App() {
   }, [data]);
 
   const TABS = [
-    {id:"dashboard",label:"Dashboard",icon:"▦"},
-    {id:"charts",label:"Biểu đồ",icon:"↗"},
-    {id:"compare",label:"So sánh",icon:"⇄"},
-    {id:"other",label:"Công Việc",icon:"📋"},
-    {id:"content",label:"Plan Content",icon:"✍️"},
-    {id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️"},
-    {id:"keyrank",label:"Từ Khóa",icon:"📊"},
-    {id:"social",label:"Content Social Media",icon:"📅"},
-    {id:"dexuat",label:"Đề Xuất Nội Dung",icon:"📝"},
-    {id:"bieudo",label:"Biểu Đồ Tổng Quan",icon:"📊"},
-    ...(isAdmin ? [{id:"input",label:"Nhập liệu",icon:"✎"}] : []),
+    {id:"dashboard",label:"Dashboard",icon:"▦",cat:"Data Analytics"},
+    {id:"charts",label:"Biểu đồ",icon:"↗",cat:"Data Analytics"},
+    {id:"compare",label:"So sánh",icon:"⇄",cat:"Data Analytics"},
+    {id:"content",label:"Plan Content",icon:"✍️",cat:"SEO"},
+    {id:"cautruc",label:"Cấu Trúc DM & Thẻ",icon:"🏷️",cat:"SEO"},
+    {id:"keyrank",label:"Từ Khóa",icon:"📊",cat:"SEO"},
+    {id:"other",label:"Công Việc",icon:"📋",cat:"Công Việc"},
+    {id:"social",label:"Content Social Media",icon:"📅",cat:"Công Việc"},
+    {id:"bieudo",label:"Biểu Đồ Tổng Quan",icon:"📊",cat:"Công Việc"},
+    {id:"dexuat",label:"Đề Xuất Nội Dung",icon:"📝",cat:"Đề xuất"},
+    ...(isAdmin ? [{id:"input",label:"Nhập liệu",icon:"✎",cat:"Admin"}] : []),
   ];
 
   const [tab, setTab] = useState("dashboard");
@@ -1040,8 +1040,18 @@ export default function App() {
 
           {/* Desktop nav */}
           {!isMobile&&(
-            <div style={{display:"flex",gap:2}}>
-              {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"8px 18px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,borderBottom:act?`2px solid ${C.gold}`:"2px solid transparent",transition:"all .15s"}}>{t.icon} {t.label}</button>; })}
+            <div style={{display:"flex",gap:0,alignItems:"center"}}>
+              {TABS.reduce((acc,t)=>{
+                if(!acc.find(a=>a.cat===t.cat))acc.push({cat:t.cat,items:[]});
+                acc.find(a=>a.cat===t.cat).items.push(t);
+                return acc;
+              },[]).map((g,gi)=>(
+                <div key={g.cat} style={{display:"flex",alignItems:"center",gap:1}}>
+                  {gi>0&&<span style={{color:"rgba(255,255,255,0.2)",margin:"0 4px",fontSize:11}}>|</span>}
+                  <span style={{fontSize:9,color:`${C.gold}88`,fontWeight:700,textTransform:"uppercase",letterSpacing:.8,marginRight:4,whiteSpace:"nowrap"}}>{g.cat}</span>
+                  {g.items.map(t=>{const act=tab===t.id;return <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"6px 12px",borderRadius:6,border:"none",cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,borderBottom:act?`2px solid ${C.gold}`:"2px solid transparent",transition:"all .15s",whiteSpace:"nowrap"}}>{t.icon} {t.label}</button>})}
+                </div>
+              ))}
             </div>
           )}
 
@@ -1063,7 +1073,16 @@ export default function App() {
         {/* Mobile dropdown menu */}
         {isMobile&&mobileMenuOpen&&(
           <div style={{background:C.purple,borderTop:`1px solid #ffffff22`,padding:"8px 14px 12px"}}>
-            {TABS.map(t=>{ const act=tab===t.id; return <button key={t.id} onClick={()=>{setTab(t.id);setMobileMenuOpen(false);}} style={{display:"block",width:"100%",textAlign:"left",padding:"11px 14px",borderRadius:10,border:"none",cursor:"pointer",fontWeight:700,fontSize:14,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,marginBottom:2}}>{t.icon} {t.label}</button>; })}
+            {TABS.reduce((acc,t)=>{
+              if(!acc.find(a=>a.cat===t.cat))acc.push({cat:t.cat,items:[]});
+              acc.find(a=>a.cat===t.cat).items.push(t);
+              return acc;
+            },[]).map(g=>(
+              <div key={g.cat} style={{marginBottom:8}}>
+                <div style={{fontSize:9,color:`${C.gold}88`,fontWeight:700,textTransform:"uppercase",letterSpacing:1,padding:"4px 0 2px"}}>{g.cat}</div>
+                {g.items.map(t=>{const act=tab===t.id;return <button key={t.id} onClick={()=>{setTab(t.id);setMobileMenuOpen(false);}} style={{display:"block",width:"100%",textAlign:"left",padding:"9px 12px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,fontFamily:"inherit",background:act?`${C.gold}22`:"transparent",color:act?C.gold:C.purpleLight,marginBottom:2}}>{t.icon} {t.label}</button>})}
+              </div>
+            ))}
           </div>
         )}
       </div>
